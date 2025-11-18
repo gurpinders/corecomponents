@@ -165,13 +165,13 @@
   - [x] Description
   - [x] "Starting from" price display
   - [x] Stock status indicator
-- [] Build quote request form
-  - [] Customer information fields
-  - [] Quantity selector
-  - [] Additional notes textarea
-  - [] Submit button
-  - [] Form validation
-  - [] Success/error handling
+- [x] Build quote request form
+  - [x] Customer information fields
+  - [x] Quantity selector
+  - [x] Additional notes textarea
+  - [x] Submit button
+  - [x] Form validation
+  - [x] Success/error handling
 - [ ] Create related products section
 - [ ] Implement dynamic routing ([slug])
 - [ ] Add meta tags for SEO
@@ -182,32 +182,32 @@
 ### Week 4: Search, Filters & Forms
 
 #### Advanced Search
-- [ ] Create search API endpoint
-  - [ ] Search on part name
-  - [ ] Search on description
-  - [ ] Search on category
-- [ ] Implement search suggestions/autocomplete
-- [ ] Handle no results state
-- [ ] Optimize search performance
+- [x] Create search API endpoint
+  - [x] Search on part name
+  - [x] Search on description
+  - [x] Search on category
+- [x] Implement search suggestions/autocomplete
+- [x] Handle no results state
+- [x] Optimize search performance
 
 #### Advanced Filters
-- [ ] Multi-select category filter
-- [ ] Price range slider
-- [ ] Stock status filter
-- [ ] Filter combination logic
-- [ ] Active filters display
-- [ ] Reset all filters functionality
-- [ ] Mobile-friendly filter drawer
+- [x] Multi-select category filter
+- [x] Price range slider
+- [x] Stock status filter
+- [x] Filter combination logic
+- [x] Active filters display
+- [x] Reset all filters functionality
+- [x] Mobile-friendly filter drawer
 
 #### Quote Request System
-- [ ] Create quote request form component
-- [ ] Build quote API endpoint
-  - [ ] Validate form data
-  - [ ] Save to database
-  - [ ] Send email notification to admin
-  - [ ] Send confirmation email to customer
-- [ ] Create quote success page/modal
-- [ ] Test quote submission flow
+- [x] Create quote request form component
+- [x] Build quote API endpoint
+  - [x] Validate form data
+  - [x] Save to database
+  - [x] Send email notification to admin
+  - [x] Send confirmation email to customer
+- [x] Create quote success page/modal
+- [x] Test quote submission flow
 
 #### Newsletter Signup
 - [ ] Create newsletter signup API endpoint
