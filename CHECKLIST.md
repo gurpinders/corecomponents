@@ -47,49 +47,49 @@
 ### Week 2: Database Schema & Authentication
 
 #### Database Schema Design
-- [ ] Design Parts table schema (name, description, price, category, images, stock_status)
-- [ ] Design Categories table schema
-- [ ] Design Customers table schema
-- [ ] Design EmailCampaigns table schema
-- [ ] Design QuoteRequests table schema
-- [ ] Define relationships between tables
-- [ ] Document database schema
+- [x] Design Parts table schema (name, description, price, category, images, stock_status)
+- [x] Design Categories table schema
+- [x] Design Customers table schema
+- [x] Design EmailCampaigns table schema
+- [x] Design QuoteRequests table schema
+- [x] Define relationships between tables
+- [x] Document database schema
 
 #### Database Table Creation
-- [ ] Create Categories table with SQL
-- [ ] Create Parts table with SQL
-  - [ ] id (UUID, primary key)
-  - [ ] name (text)
-  - [ ] description (text)
-  - [ ] price (numeric) - "Starting from" price
-  - [ ] category_id (foreign key)
-  - [ ] stock_status (enum: in_stock, low_stock, out_of_stock)
-  - [ ] featured (boolean)
-  - [ ] created_at (timestamp)
-  - [ ] updated_at (timestamp)
-- [ ] Create Customers table with SQL
-- [ ] Create EmailCampaigns table with SQL
-- [ ] Create EmailCampaignProducts table (junction)
-- [ ] Create QuoteRequests table with SQL
-- [ ] Set up Row Level Security (RLS) policies
-- [ ] Test table creation and relationships
+- [x] Create Categories table with SQL
+- [x] Create Parts table with SQL
+  - [x] id (UUID, primary key)
+  - [x] name (text)
+  - [x] description (text)
+  - [x] price (numeric) - "Starting from" price
+  - [x] category_id (foreign key)
+  - [x] stock_status (enum: in_stock, low_stock, out_of_stock)
+  - [x] featured (boolean)
+  - [x] created_at (timestamp)
+  - [x] updated_at (timestamp)
+- [x] Create Customers table with SQL
+- [x] Create EmailCampaigns table with SQL
+- [x] Create EmailCampaignProducts table (junction)
+- [x] Create QuoteRequests table with SQL
+- [x] Set up Row Level Security (RLS) policies
+- [x] Test table creation and relationships
 
 #### Storage Setup
-- [ ] Create Supabase Storage bucket for product images
-- [ ] Configure storage security policies
-- [ ] Set up image upload endpoint
-- [ ] Test image upload functionality
-- [ ] Implement image optimization
+- [x] Create Supabase Storage bucket for product images
+- [x] Configure storage security policies
+- [x] Set up image upload endpoint
+- [x] Test image upload functionality
+- [x] Implement image optimization
 
 #### Authentication Setup
-- [ ] Enable Supabase Auth
-- [ ] Create admin user account
-- [ ] Set up protected routes
-- [ ] Create login page
-- [ ] Create login API endpoint
-- [ ] Implement session management
-- [ ] Create logout functionality
-- [ ] Test authentication flow
+- [x] Enable Supabase Auth
+- [x] Create admin user account
+- [x] Set up protected routes
+- [x] Create login page
+- [x] Create login API endpoint
+- [x] Implement session management
+- [x] Create logout functionality
+- [x] Test authentication flow
 
 ---
 
