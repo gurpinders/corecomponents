@@ -98,84 +98,84 @@
 ### Week 3: Core Pages
 
 #### Layout Components
-- [ ] Create Header component
-  - [ ] Logo/branding
-  - [ ] Navigation menu
-  - [ ] Mobile hamburger menu
-  - [ ] Responsive design
-- [ ] Create Footer component
-  - [ ] Company information
-  - [ ] Quick links
-  - [ ] Contact information
-- [ ] Create Layout wrapper
-- [ ] Test responsive design (mobile, tablet, desktop)
+- [x] Create Header component
+  - [x] Logo/branding
+  - [x] Navigation menu
+  - [x] Mobile hamburger menu
+  - [x] Responsive design
+- [x] Create Footer component
+  - [x] Company information
+  - [x] Quick links
+  - [x] Contact information
+- [x] Create Layout wrapper
+- [x] Test responsive design (mobile, tablet, desktop)
 
 #### Homepage
-- [ ] Design homepage layout
-- [ ] Create hero section component
-  - [ ] Headline and tagline
-  - [ ] Call-to-action buttons
-  - [ ] Background gradient
-- [ ] Create featured products section
-  - [ ] Fetch featured products from database
-  - [ ] Product card component
-  - [ ] Grid layout
-  - [ ] Hover effects
-- [ ] Create "Why Choose Us" section
-- [ ] Create newsletter signup section
-  - [ ] Email input form
-  - [ ] Form validation
-  - [ ] Success/error messages
-- [ ] Test homepage on all devices
+- [x] Design homepage layout
+- [x] Create hero section component
+  - [x] Headline and tagline
+  - [x] Call-to-action buttons
+  - [x] Background gradient
+- [x] Create featured products section
+  - [x] Fetch featured products from database
+  - [x] Product card component
+  - [x] Grid layout
+  - [x] Hover effects
+- [x] Create "Why Choose Us" section
+- [x] Create newsletter signup section
+  - [x] Email input form
+  - [x] Form validation
+  - [x] Success/error messages
+- [x] Test homepage on all devices
 
 #### Parts Catalog Page
-- [ ] Create catalog page layout
-- [ ] Build search bar component
-  - [ ] Search input field
-  - [ ] Search functionality (API endpoint)
-  - [ ] Search debouncing
-- [ ] Build filter component
-  - [ ] Category filter
-  - [ ] Price range filter
-  - [ ] Stock status filter
-  - [ ] Apply/clear filters
-- [ ] Create product grid component
-  - [ ] Fetch products from database
-  - [ ] Product card component (reusable)
-  - [ ] Loading states
-  - [ ] Empty states
-- [ ] Implement pagination
-  - [ ] Page numbers
-  - [ ] Previous/next buttons
-- [ ] Implement sorting
-  - [ ] Sort by price (low to high, high to low)
-  - [ ] Sort by name (A-Z)
-  - [ ] Sort by newest
-- [ ] Test catalog with sample data
+- [x] Create catalog page layout
+- [x] Build search bar component
+  - [x] Search input field
+  - [x] Search functionality (API endpoint)
+  - [x] Search debouncing
+- [x] Build filter component
+  - [x] Category filter
+  - [x] Price range filter
+  - [x] Stock status filter
+  - [x] Apply/clear filters
+- [x] Create product grid component
+  - [x] Fetch products from database
+  - [x] Product card component (reusable)
+  - [x] Loading states
+  - [x] Empty states
+- [x] Implement pagination
+  - [x] Page numbers
+  - [x] Previous/next buttons
+- [x] Implement sorting
+  - [x] Sort by price (low to high, high to low)
+  - [x] Sort by name (A-Z)
+  - [x] Sort by newest
+- [x] Test catalog with sample data
 
 #### Individual Part Detail Page
-- [ ] Create part detail page layout
-- [ ] Build image gallery component
-  - [ ] Main image display
-  - [ ] Thumbnail navigation
-  - [ ] Zoom on hover
-- [ ] Create product information section
-  - [ ] Part name
-  - [ ] Category breadcrumb
-  - [ ] Description
-  - [ ] "Starting from" price display
-  - [ ] Stock status indicator
-- [ ] Build quote request form
-  - [ ] Customer information fields
-  - [ ] Quantity selector
-  - [ ] Additional notes textarea
-  - [ ] Submit button
-  - [ ] Form validation
-  - [ ] Success/error handling
+- [x] Create part detail page layout
+- [x] Build image gallery component
+  - [x] Main image display
+  - [x] Thumbnail navigation
+  - [x] Zoom on hover
+- [x] Create product information section
+  - [x] Part name
+  - [x] Category breadcrumb
+  - [x] Description
+  - [x] "Starting from" price display
+  - [x] Stock status indicator
+- [] Build quote request form
+  - [] Customer information fields
+  - [] Quantity selector
+  - [] Additional notes textarea
+  - [] Submit button
+  - [] Form validation
+  - [] Success/error handling
 - [ ] Create related products section
 - [ ] Implement dynamic routing ([slug])
 - [ ] Add meta tags for SEO
-- [ ] Test part detail page
+- [x] Test part detail page
 
 ---
 
