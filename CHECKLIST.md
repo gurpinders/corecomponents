@@ -503,21 +503,21 @@
 - [ ] Ensure compliance with CAN-SPAM/CASL
 
 #### Email Analytics
-- [ ] Implement open tracking
-  - [ ] Add tracking pixel
-  - [ ] Create tracking endpoint
-  - [ ] Log opens to database
-- [ ] Implement click tracking
-  - [ ] Create redirect URLs
-  - [ ] Log clicks to database
-- [ ] Create analytics dashboard
-  - [ ] Total emails sent
-  - [ ] Open rate
-  - [ ] Click-through rate
-  - [ ] Top clicked products
-- [ ] Create campaign performance page
+- [x] Implement open tracking
+  - [x] Add tracking pixel
+  - [x] Create tracking endpoint
+  - [x] Log opens to database
+- [x] Implement click tracking
+  - [x] Create redirect URLs
+  - [x] Log clicks to database
+- [x] Create analytics dashboard
+  - [x] Total emails sent
+  - [x] Open rate
+  - [x] Click-through rate
+  - [x] Top clicked products
+- [x] Create campaign performance page
 - [ ] Add export analytics to CSV
-- [ ] Test analytics tracking
+- [x] Test analytics tracking
 
 #### Campaign Management
 - [x] Create campaigns history page
