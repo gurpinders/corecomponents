@@ -9,7 +9,7 @@ export default function AdminCampaignsPage() {
     const [campaigns, setCampaigns] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const [sending, setSending] = useState(null) // Track which campaign is being sent
+    const [sending, setSending] = useState(null)
 
     const router = useRouter()
 
@@ -54,7 +54,7 @@ export default function AdminCampaignsPage() {
             }
 
             alert(data.message || 'Campaign sent successfully!')
-            fetchCampaigns() // Refresh the list
+            fetchCampaigns()
         } catch (error) {
             alert('Error sending campaign: ' + error.message)
         } finally {
@@ -179,6 +179,14 @@ export default function AdminCampaignsPage() {
                                                 >
                                                     {sending === campaign.id ? 'Sending...' : 'Send'}
                                                 </button>
+                                            )}
+                                            {campaign.status === 'sent' && (
+                                                <Link
+                                                    href={`/admin/campaigns/${campaign.id}/analytics`}
+                                                    className="text-blue-600 hover:text-blue-900 font-medium"
+                                                >
+                                                    Analytics
+                                                </Link>
                                             )}
                                             <button
                                                 onClick={() => handleDelete(campaign.id)}
