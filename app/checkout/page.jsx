@@ -74,9 +74,9 @@ export default function CheckoutPage() {
             // Create order items
             const orderItems = cart.map(item => ({
                 order_id: order.id,
-                part_id: item.id,
-                part_name: item.name,
-                part_sku: item.sku,
+                part_id: item.sku ? item.id : null, // NULL for trucks
+                part_name: item.name, // This should now have truck name
+                part_sku: item.sku || item.vin || 'TRUCK-' + item.id.substring(0, 8),
                 quantity: item.quantity,
                 price: item.price,
                 subtotal: item.price * item.quantity
@@ -96,7 +96,10 @@ export default function CheckoutPage() {
 
         } catch (err) {
             console.error('Checkout error:', err)
-            setError('Failed to complete order. Please try again.')
+            console.error('Error message:', err.message)
+            console.error('Error details:', err.details)
+            console.error('Error hint:', err.hint)
+            setError(`Failed to complete order: ${err.message || 'Please try again.'}`)
             setLoading(false)
         }
     }
