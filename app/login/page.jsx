@@ -36,9 +36,8 @@ export default function LoginPage() {
 
             if (error) throw error
 
-            // Success - redirect to catalog
-            router.push('/catalog')
-            router.refresh()
+            // Success - force full page reload to refresh user state
+            window.location.href = '/'
 
         } catch (err) {
             console.error('Login error:', err)

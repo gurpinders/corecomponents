@@ -54,9 +54,9 @@ export default function SignupPage() {
 
             if (customerError) throw customerError
 
-            // Success - redirect to catalog
+            // Success - force full page reload to refresh user state
             alert('Account created successfully! You can now see customer pricing.')
-            router.push('/catalog')
+            window.location.href = '/'
 
         } catch (err) {
             console.error('Signup error:', err)
