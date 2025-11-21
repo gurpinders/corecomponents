@@ -159,13 +159,19 @@ export default function Catalog(){
                         {sortedProducts?.map((product) => (
                             <Link key={product.id} href={`/catalog/${product.id}`}>
                                 <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-                                    <Image 
-                                        src={product.images[0]} 
-                                        alt={product.name} 
-                                        width={400} 
-                                        height={300} 
-                                        className="w-full h-48 object-cover"
-                                    />
+                                    {product.images && product.images[0] ? (
+                                        <Image 
+                                            src={product.images[0]} 
+                                            alt={product.name} 
+                                            width={400} 
+                                            height={300} 
+                                            className="w-full h-48 object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                            <p className="text-gray-500">No image</p>
+                                        </div>
+                                    )}
                                     <div className="p-4">
                                         <h3 className="text-lg font-bold text-gray-900 mb-2">{product.name}</h3>
                                         

@@ -60,7 +60,7 @@ export default function SignupPage() {
 
         } catch (err) {
             console.error('Signup error:', err)
-            setError(err.message)
+            setError(err.message || err.error_description || 'Failed to create account')
         } finally {
             setLoading(false)
         }
