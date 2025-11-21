@@ -1,10 +1,10 @@
 'use client'
 
-
 import Header from '@/components/Header.jsx'
 import Footer from '@/components/Footer.jsx'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useCart } from '@/lib/CartContext'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
 
@@ -22,6 +22,7 @@ export default function ProductDetailPage({ params }) {
     const [formSubmitting, setFormSubmitting] = useState(false)
     const [formSuccess, setFormSuccess] = useState(false)
     const [formError, setFormError] = useState('')
+    const { user, addToCart } = useCart()
 
     useEffect(() => {
         async function fetchProduct() {
@@ -93,21 +94,21 @@ export default function ProductDetailPage({ params }) {
     if (!product) {
         return (
             <div>
-            <Header />
-            <main className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
-                <div className="text-center">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-                <Link href="/catalog" className="text-blue-600 hover:underline">
-                    Back to Catalog
-                </Link>
-                </div>
-            </main>
-            <Footer />
+                <Header />
+                <main className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+                    <div className="text-center">
+                        <h1 className="text-4xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+                        <Link href="/catalog" className="text-blue-600 hover:underline">
+                            Back to Catalog
+                        </Link>
+                    </div>
+                </main>
+                <Footer />
             </div>
         )
     }
 
-    return(
+    return (
         <div>
             <Header />
             <main className='min-h-screen bg-gray-50 py-12'>
@@ -120,35 +121,91 @@ export default function ProductDetailPage({ params }) {
                         {' / '}
                         <span className="text-gray-900">{product.name}</span>
                     </div>
+
                     {/* Product Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         {/* Left: Image */}
                         <div>
                             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                                <Image 
-                                    src={product.images[0]} 
-                                    alt={product.name} 
-                                    width={800} 
-                                    height={600} 
-                                    className="w-full h-auto object-cover"
-                                />
+                                {product.images && product.images[0] ? (
+                                    <Image 
+                                        src={product.images[0]} 
+                                        alt={product.name} 
+                                        width={800} 
+                                        height={600} 
+                                        className="w-full h-auto object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-96 bg-gray-200 flex items-center justify-center">
+                                        <p className="text-gray-500">No image available</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     
                         {/* Right: Details */}
                         <div>
-                            <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
-                            <p className="text-3xl font-bold text-gray-900 mb-4">Starting from ${product.price}</p>
-                            <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold mb-6 ${
-                                product.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
-                                product.stock_status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-red-100 text-red-800'}`}>
-                            {product.stock_status === 'in_stock' ? 'In Stock' : product.stock_status === 'low_stock' ? 'Low Stock' : 'Out of Stock'}
-                            </span>
+                            {/* Product Title */}
+                            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                                {product.name}
+                            </h1>
+
+                            {/* SKU */}
+                            {product.sku && (
+                                <p className="text-sm text-gray-600 mb-6">
+                                    SKU: {product.sku}
+                                </p>
+                            )}
+
+                            {/* Description */}
+                            {product.description && (
+                                <p className="text-gray-700 mb-6 leading-relaxed">
+                                    {product.description}
+                                </p>
+                            )}
+
+                            {/* Pricing */}
                             <div className="mb-6">
-                                <h2 className="text-xl font-bold text-gray-900 mb-2">Description</h2>
-                                <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                                {user ? (
+                                    // Logged in - show both prices
+                                    <div>
+                                        <p className="text-sm text-gray-500 line-through">
+                                            Retail: ${product.retail_price}
+                                        </p>
+                                        <p className="text-3xl font-bold text-black">
+                                            Your Price: ${product.customer_price}
+                                        </p>
+                                        <p className="text-sm text-green-600 font-medium">
+                                            You save ${(product.retail_price - product.customer_price).toFixed(2)}!
+                                        </p>
+                                    </div>
+                                ) : (
+                                    // Not logged in - show retail price
+                                    <div>
+                                        <p className="text-3xl font-bold text-black">
+                                            Starting at ${product.retail_price}
+                                        </p>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Sign in for exclusive customer pricing
+                                        </p>
+                                    </div>
+                                )}
                             </div>
+
+                            {/* Add to Cart Button */}
+                            <button
+                                onClick={() => {
+                                    addToCart(product, 1)
+                                    alert('Added to cart!')
+                                }}
+                                className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 mb-8"
+                            >
+                                Add to Cart
+                            </button>
+
+                            {/* Divider */}
+                            <hr className="my-8" />
+
                             {/* Quote Request Form */}
                             <div className="bg-white p-6 rounded-lg shadow-lg">
                                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Request a Quote</h2>

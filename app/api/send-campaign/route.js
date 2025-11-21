@@ -37,7 +37,7 @@ export async function POST(request) {
     // Fetch subscribed customers
     const { data: customers, error: customersError } = await supabase
       .from("customers")
-      .select("email, name")
+      .select("email, name, unsubscribe_token")
       .eq("subscribed", true);
 
     if (customersError) {
@@ -53,11 +53,7 @@ export async function POST(request) {
 
     // Send emails to all subscribed customers
     const emailPromises = customers.map((customer) => {
-      const emailHtml = createEmailTemplate(
-        campaign,
-        campaignParts,
-        customer.email
-      );
+      const emailHtml = createEmailTemplate(campaign, campaignParts, customer);
 
       return resend.emails.send({
         from: "onboarding@resend.dev",
@@ -89,14 +85,14 @@ export async function POST(request) {
   }
 }
 
-function createEmailTemplate(campaign, campaignParts, customerEmail) {
+function createEmailTemplate(campaign, campaignParts, customer) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   const productsHtml = campaignParts
     .map((cp) => {
       const clickTrackingUrl = `${baseUrl}/api/track/click?c=${
         campaign.id
-      }&e=${encodeURIComponent(customerEmail)}&p=${cp.parts.id}`;
+      }&e=${encodeURIComponent(customer.email)}&p=${cp.parts.id}`;
 
       return `
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 1px solid #ddd; border-radius: 8px; margin-bottom: 16px;">
@@ -141,7 +137,7 @@ function createEmailTemplate(campaign, campaignParts, customerEmail) {
   // Tracking pixel for open tracking
   const trackingPixelUrl = `${baseUrl}/api/track/open?c=${
     campaign.id
-  }&e=${encodeURIComponent(customerEmail)}`;
+  }&e=${encodeURIComponent(customer.email)}`;
 
   return `
         <!DOCTYPE html>
@@ -173,13 +169,17 @@ function createEmailTemplate(campaign, campaignParts, customerEmail) {
                                     ${productsHtml}
                                 </td>
                             </tr>
-
                             <!-- Footer -->
                             <tr>
                                 <td style="background-color: #f5f5f5; padding: 24px; text-align: center; color: #666; font-size: 12px;">
                                     <p style="margin: 0 0 8px 0;">CoreComponents - Quality Trucking Parts</p>
                                     <p style="margin: 0 0 8px 0;">(647) 993-8235 | info@ccomponents.ca</p>
-                                    <p style="margin: 0;">You received this email because you subscribed to our mailing list.</p>
+                                    <p style="margin: 0 0 8px 0;">You received this email because you subscribed to our mailing list.</p>
+                                    <p style="margin: 8px 0 0 0;">
+                                        <a href="${baseUrl}/unsubscribe?token=${customer.unsubscribe_token}" style="color: #666; text-decoration: underline;">
+                                            Unsubscribe from these emails
+                                        </a>
+                                    </p>
                                 </td>
                             </tr>
                         </table>
