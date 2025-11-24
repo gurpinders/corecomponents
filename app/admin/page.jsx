@@ -8,17 +8,25 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true)
     const [metrics, setMetrics] = useState({
         totalParts: 0,
+        totalTrucks: 0,
         totalCustomers: 0,
         totalCampaigns: 0,
         totalQuotes: 0,
         newQuotes: 0,
         subscribedCustomers: 0,
         customersThisMonth: 0,
-        customersLastMonth: 0
+        customersLastMonth: 0,
+        totalRevenue: 0,
+        totalOrders: 0,
+        avgOrderValue: 0,
+        revenueThisMonth: 0,
+        ordersThisMonth: 0
     })
     const [recentQuotes, setRecentQuotes] = useState([])
     const [recentCampaigns, setRecentCampaigns] = useState([])
+    const [recentOrders, setRecentOrders] = useState([])
     const [topProducts, setTopProducts] = useState([])
+    const [lowStockParts, setLowStockParts] = useState([])
     const [quoteBreakdown, setQuoteBreakdown] = useState({
         new: 0,
         contacted: 0,
@@ -34,8 +42,11 @@ export default function AdminDashboard() {
     const fetchAllData = async () => {
         await Promise.all([
             fetchMetrics(),
+            fetchRevenueData(),
             fetchRecentActivity(),
+            fetchRecentOrders(),
             fetchTopProducts(),
+            fetchLowStockParts(),
             fetchQuoteBreakdown(),
             fetchCampaignPerformance(),
             fetchCustomerGrowth()
@@ -44,8 +55,9 @@ export default function AdminDashboard() {
     }
 
     const fetchMetrics = async () => {
-        const [parts, customers, campaigns, quotes, subscribedCustomers, newQuotes] = await Promise.all([
+        const [parts, trucks, customers, campaigns, quotes, subscribedCustomers, newQuotes] = await Promise.all([
             supabase.from('parts').select('id', { count: 'exact', head: true }),
+            supabase.from('trucks').select('id', { count: 'exact', head: true }),
             supabase.from('customers').select('id', { count: 'exact', head: true }),
             supabase.from('email_campaigns').select('id', { count: 'exact', head: true }),
             supabase.from('quote_requests').select('id', { count: 'exact', head: true }),
@@ -56,6 +68,7 @@ export default function AdminDashboard() {
         setMetrics(prev => ({
             ...prev,
             totalParts: parts.count || 0,
+            totalTrucks: trucks.count || 0,
             totalCustomers: customers.count || 0,
             totalCampaigns: campaigns.count || 0,
             totalQuotes: quotes.count || 0,
@@ -64,10 +77,38 @@ export default function AdminDashboard() {
         }))
     }
 
+    const fetchRevenueData = async () => {
+        // Get all completed orders
+        const { data: orders } = await supabase
+            .from('orders')
+            .select('total, created_at')
+            .eq('status', 'completed')
+
+        if (orders) {
+            const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total), 0)
+            const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0
+
+            // This month's revenue
+            const now = new Date()
+            const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+            const thisMonthOrders = orders.filter(order => new Date(order.created_at) >= startOfThisMonth)
+            const revenueThisMonth = thisMonthOrders.reduce((sum, order) => sum + parseFloat(order.total), 0)
+
+            setMetrics(prev => ({
+                ...prev,
+                totalRevenue,
+                totalOrders: orders.length,
+                avgOrderValue,
+                revenueThisMonth,
+                ordersThisMonth: thisMonthOrders.length
+            }))
+        }
+    }
+
     const fetchRecentActivity = async () => {
         const { data: quotes } = await supabase
             .from('quote_requests')
-            .select('*, parts(name)')
+            .select('*')
             .order('created_at', { ascending: false })
             .limit(5)
 
@@ -82,34 +123,53 @@ export default function AdminDashboard() {
         if (campaigns) setRecentCampaigns(campaigns)
     }
 
+    const fetchRecentOrders = async () => {
+        const { data: orders } = await supabase
+            .from('orders')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(5)
+
+        if (orders) setRecentOrders(orders)
+    }
+
     const fetchTopProducts = async () => {
-        const { data: quotes } = await supabase
-            .from('quote_requests')
-            .select('part_id, parts(name)')
+        const { data: orderItems } = await supabase
+            .from('order_items')
+            .select('part_name, quantity, part_id')
             .not('part_id', 'is', null)
 
-        if (quotes) {
-            // Count occurrences of each product
+        if (orderItems) {
             const productCounts = {}
-            quotes.forEach(quote => {
-                if (quote.part_id) {
-                    if (!productCounts[quote.part_id]) {
-                        productCounts[quote.part_id] = {
-                            name: quote.parts?.name || 'Unknown',
+            orderItems.forEach(item => {
+                if (item.part_id) {
+                    if (!productCounts[item.part_id]) {
+                        productCounts[item.part_id] = {
+                            name: item.part_name,
                             count: 0
                         }
                     }
-                    productCounts[quote.part_id].count++
+                    productCounts[item.part_id].count += item.quantity
                 }
             })
 
-            // Convert to array and sort
             const topProducts = Object.values(productCounts)
                 .sort((a, b) => b.count - a.count)
                 .slice(0, 5)
 
             setTopProducts(topProducts)
         }
+    }
+
+    const fetchLowStockParts = async () => {
+        const { data: parts } = await supabase
+            .from('parts')
+            .select('id, name, sku, stock_status')
+            .or('stock_status.eq.low_stock,stock_status.eq.out_of_stock')
+            .order('stock_status', { ascending: false })
+            .limit(5)
+
+        if (parts) setLowStockParts(parts)
     }
 
     const fetchQuoteBreakdown = async () => {
@@ -137,7 +197,6 @@ export default function AdminDashboard() {
             .limit(3)
 
         if (campaigns) {
-            // Fetch analytics for each campaign
             const performancePromises = campaigns.map(async (campaign) => {
                 const { data: tracking } = await supabase
                     .from('email_tracking')
@@ -192,7 +251,12 @@ export default function AdminDashboard() {
     if (loading) {
         return (
             <main className="max-w-7xl mx-auto px-6 py-8">
-                <p className="text-center">Loading dashboard...</p>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading dashboard...</p>
+                    </div>
+                </div>
             </main>
         )
     }
@@ -206,37 +270,66 @@ export default function AdminDashboard() {
         <main className="max-w-7xl mx-auto px-6 py-8">
             {/* Welcome Section */}
             <div className="mb-8">
-                <h2 className="text-3xl font-bold mb-2">Welcome back!</h2>
-                <p className="text-gray-600">Here's what's happening with your business today.</p>
+                <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
+                <p className="text-gray-600">Welcome back! Here's what's happening with your business.</p>
             </div>
 
-            {/* Metrics Grid */}
+            {/* Top Metrics - Revenue Focus */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-lg shadow-lg p-6">
+                    <p className="text-sm text-green-800 mb-1">Total Revenue</p>
+                    <p className="text-3xl font-bold text-green-900">${metrics.totalRevenue.toFixed(2)}</p>
+                    <p className="text-sm text-green-700 mt-2">All completed orders</p>
+                </div>
+
+                <div className="bg-white border-2 border-gray-200 rounded-lg shadow p-6">
+                    <p className="text-sm text-gray-500 mb-1">Total Orders</p>
+                    <p className="text-3xl font-bold">{metrics.totalOrders}</p>
+                    <p className="text-sm text-gray-600 mt-2">{metrics.ordersThisMonth} this month</p>
+                </div>
+
+                <div className="bg-white border-2 border-gray-200 rounded-lg shadow p-6">
+                    <p className="text-sm text-gray-500 mb-1">Avg Order Value</p>
+                    <p className="text-3xl font-bold">${metrics.avgOrderValue.toFixed(2)}</p>
+                    <p className="text-sm text-gray-600 mt-2">Per completed order</p>
+                </div>
+
+                <div className="bg-white border-2 border-gray-200 rounded-lg shadow p-6">
+                    <p className="text-sm text-gray-500 mb-1">This Month</p>
+                    <p className="text-3xl font-bold">${metrics.revenueThisMonth.toFixed(2)}</p>
+                    <p className="text-sm text-gray-600 mt-2">{metrics.ordersThisMonth} orders</p>
+                </div>
+            </div>
+
+            {/* Secondary Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white rounded-lg shadow p-6">
-                    <p className="text-sm text-gray-500 mb-1">Total Parts</p>
-                    <p className="text-3xl font-bold">{metrics.totalParts}</p>
-                    <Link href="/admin/parts" className="text-sm text-blue-600 hover:text-blue-800 mt-2 inline-block">
-                        Manage Parts →
-                    </Link>
+                    <p className="text-sm text-gray-500 mb-1">Inventory</p>
+                    <p className="text-3xl font-bold">{metrics.totalParts + metrics.totalTrucks}</p>
+                    <div className="text-sm text-gray-600 mt-2">
+                        {metrics.totalParts} parts • {metrics.totalTrucks} trucks
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow p-6">
                     <p className="text-sm text-gray-500 mb-1">Customers</p>
                     <p className="text-3xl font-bold">{metrics.totalCustomers}</p>
-                    <p className="text-sm text-gray-600 mt-1">{metrics.subscribedCustomers} subscribed</p>
+                    <p className="text-sm text-gray-600 mt-2">{metrics.subscribedCustomers} subscribed</p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow p-6">
                     <p className="text-sm text-gray-500 mb-1">Quote Requests</p>
                     <p className="text-3xl font-bold">{metrics.totalQuotes}</p>
-                    <p className="text-sm text-red-600 font-medium mt-1">{metrics.newQuotes} new</p>
+                    {metrics.newQuotes > 0 && (
+                        <p className="text-sm text-red-600 font-medium mt-2">⚠️ {metrics.newQuotes} need attention</p>
+                    )}
                 </div>
 
                 <div className="bg-white rounded-lg shadow p-6">
                     <p className="text-sm text-gray-500 mb-1">Email Campaigns</p>
                     <p className="text-3xl font-bold">{metrics.totalCampaigns}</p>
                     <Link href="/admin/campaigns" className="text-sm text-blue-600 hover:text-blue-800 mt-2 inline-block">
-                        View Campaigns →
+                        Manage →
                     </Link>
                 </div>
             </div>
@@ -244,31 +337,66 @@ export default function AdminDashboard() {
             {/* Quick Actions */}
             <div className="bg-white rounded-lg shadow p-6 mb-8">
                 <h3 className="text-xl font-bold mb-4">Quick Actions</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Link
                         href="/admin/parts/new"
-                        className="bg-black text-white px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-800"
+                        className="bg-black text-white px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-800 transition-colors"
                     >
-                        + Add New Part
+                        + Add Part
+                    </Link>
+                    <Link
+                        href="/admin/trucks/new"
+                        className="bg-black text-white px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-800 transition-colors"
+                    >
+                        + Add Truck
                     </Link>
                     <Link
                         href="/admin/campaigns/new"
-                        className="bg-black text-white px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-800"
+                        className="bg-black text-white px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-800 transition-colors"
                     >
                         + Create Campaign
                     </Link>
                     <Link
-                        href="/admin/customers/new"
-                        className="bg-black text-white px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-800"
+                        href="/admin/orders"
+                        className="bg-black text-white px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-800 transition-colors"
                     >
-                        + Add Customer
+                        View Orders
                     </Link>
                 </div>
             </div>
 
+            {/* Alerts Section */}
+            {lowStockParts.length > 0 && (
+                <div className="bg-red-50 border-2 border-red-200 rounded-lg shadow p-6 mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold text-red-900 flex items-center gap-2">
+                            ⚠️ Low Stock Alerts
+                        </h3>
+                        <Link href="/admin/parts" className="text-sm text-red-700 hover:text-red-900 font-medium">
+                            Manage Inventory →
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {lowStockParts.map((part) => (
+                            <div key={part.id} className="bg-white rounded-lg p-4 border-l-4 border-red-500">
+                                <p className="font-medium text-sm">{part.name}</p>
+                                <p className="text-xs text-gray-600 mt-1">SKU: {part.sku}</p>
+                                <span className={`inline-block mt-2 px-2 py-1 rounded text-xs font-bold ${
+                                    part.stock_status === 'out_of_stock' 
+                                        ? 'bg-red-100 text-red-800' 
+                                        : 'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                    {part.stock_status === 'out_of_stock' ? 'OUT OF STOCK' : 'LOW STOCK'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Analytics Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                {/* Quote Status Breakdown */}
+                {/* Quote Pipeline */}
                 <div className="bg-white rounded-lg shadow p-6">
                     <h3 className="text-xl font-bold mb-4">Quote Pipeline</h3>
                     <div className="space-y-3">
@@ -319,16 +447,16 @@ export default function AdminDashboard() {
                             <p className="text-xl font-medium text-gray-600">{metrics.customersLastMonth}</p>
                         </div>
                         <div className={`text-sm font-medium ${customerGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {customerGrowth >= 0 ? '↑' : '↓'} {Math.abs(customerGrowth)} ({growthPercentage}%)
+                            {customerGrowth >= 0 ? '↑' : '↓'} {Math.abs(customerGrowth)} customers ({growthPercentage}%)
                         </div>
                     </div>
                 </div>
 
                 {/* Top Products */}
                 <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-xl font-bold mb-4">Top Requested Products</h3>
+                    <h3 className="text-xl font-bold mb-4">Top Selling Products</h3>
                     {topProducts.length === 0 ? (
-                        <p className="text-gray-500 text-sm">No data yet</p>
+                        <p className="text-gray-500 text-sm">No sales data yet</p>
                     ) : (
                         <div className="space-y-3">
                             {topProducts.map((product, index) => (
@@ -360,13 +488,13 @@ export default function AdminDashboard() {
                             </thead>
                             <tbody>
                                 {campaignPerformance.map((campaign, index) => (
-                                    <tr key={index} className="border-b">
-                                        <td className="py-3 px-4 text-sm">{campaign.name}</td>
+                                    <tr key={index} className="border-b hover:bg-gray-50">
+                                        <td className="py-3 px-4 text-sm font-medium">{campaign.name}</td>
                                         <td className="py-3 px-4">
-                                            <span className="text-sm font-medium">{campaign.openRate}%</span>
+                                            <span className="text-sm font-medium text-green-600">{campaign.openRate}%</span>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="text-sm font-medium">{campaign.clickRate}%</span>
+                                            <span className="text-sm font-medium text-blue-600">{campaign.clickRate}%</span>
                                         </td>
                                     </tr>
                                 ))}
@@ -376,8 +504,45 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            {/* Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Three Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Recent Orders */}
+                <div className="bg-white rounded-lg shadow p-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-bold">Recent Orders</h3>
+                        <Link href="/admin/orders" className="text-sm text-blue-600 hover:text-blue-800">
+                            View All →
+                        </Link>
+                    </div>
+                    {recentOrders.length === 0 ? (
+                        <p className="text-gray-500 text-sm">No orders yet</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {recentOrders.map((order) => (
+                                <div key={order.id} className="border-b pb-3 last:border-b-0">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <p className="font-medium text-sm">{order.customer_name}</p>
+                                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                            order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                                            order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-gray-100 text-gray-800'
+                                        }`}>
+                                            {order.status}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-500">
+                                            {new Date(order.created_at).toLocaleDateString()}
+                                        </span>
+                                        <span className="font-bold text-sm">${order.total.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 {/* Recent Quotes */}
                 <div className="bg-white rounded-lg shadow p-6">
                     <div className="flex justify-between items-center mb-4">
@@ -387,15 +552,15 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
                     {recentQuotes.length === 0 ? (
-                        <p className="text-gray-500">No quote requests yet</p>
+                        <p className="text-gray-500 text-sm">No quote requests yet</p>
                     ) : (
                         <div className="space-y-3">
                             {recentQuotes.map((quote) => (
-                                <div key={quote.id} className="border-b pb-3">
-                                    <p className="font-medium">{quote.customer_name}</p>
-                                    <p className="text-sm text-gray-600">{quote.parts?.name || 'Product'}</p>
-                                    <div className="flex justify-between items-center mt-1">
-                                        <span className={`text-xs px-2 py-1 rounded-full ${
+                                <div key={quote.id} className="border-b pb-3 last:border-b-0">
+                                    <p className="font-medium text-sm">{quote.customer_name}</p>
+                                    <p className="text-xs text-gray-600 mt-1">{quote.message || 'No message'}</p>
+                                    <div className="flex justify-between items-center mt-2">
+                                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                                             quote.status === 'new' ? 'bg-blue-100 text-blue-800' :
                                             quote.status === 'contacted' ? 'bg-yellow-100 text-yellow-800' :
                                             'bg-green-100 text-green-800'
@@ -421,15 +586,15 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
                     {recentCampaigns.length === 0 ? (
-                        <p className="text-gray-500">No campaigns yet</p>
+                        <p className="text-gray-500 text-sm">No campaigns yet</p>
                     ) : (
                         <div className="space-y-3">
                             {recentCampaigns.map((campaign) => (
-                                <div key={campaign.id} className="border-b pb-3">
-                                    <p className="font-medium">{campaign.campaign_name}</p>
-                                    <p className="text-sm text-gray-600">{campaign.subject}</p>
-                                    <div className="flex justify-between items-center mt-1">
-                                        <span className={`text-xs px-2 py-1 rounded-full ${
+                                <div key={campaign.id} className="border-b pb-3 last:border-b-0">
+                                    <p className="font-medium text-sm">{campaign.campaign_name}</p>
+                                    <p className="text-xs text-gray-600 mt-1 truncate">{campaign.subject}</p>
+                                    <div className="flex justify-between items-center mt-2">
+                                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                                             campaign.status === 'sent' ? 'bg-green-100 text-green-800' :
                                             campaign.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
                                             'bg-gray-100 text-gray-800'
