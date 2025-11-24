@@ -3,6 +3,7 @@
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import ImageUpload from '@/components/ImageUpload'
 
 export default function AddTruckPage(){
     const [formData, setFormData] = useState({
@@ -24,6 +25,7 @@ export default function AddTruckPage(){
         status: 'available',
         images: ['']
     })
+    const [images, setImages] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
@@ -61,7 +63,8 @@ export default function AddTruckPage(){
             mileage: parseInt(formData.mileage),
             gvw: parseInt(formData.gvw),
             retail_price: parseFloat(formData.retail_price),
-            customer_price: parseFloat(formData.customer_price)
+            customer_price: parseFloat(formData.customer_price),
+            images: images
         }
 
         const { data, error } = await supabase
@@ -401,21 +404,11 @@ export default function AddTruckPage(){
                             </select>
                         </div>
 
-                        {/* Image URL */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Image URL
-                            </label>
-                            <input
-                                type="url"
-                                name="images"
-                                value={formData.images[0]}
-                                onChange={(e) => setFormData({...formData, images: [e.target.value]})}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                placeholder="https://example.com/truck-image.jpg"
-                            />
-                            <p className="text-sm text-gray-500 mt-1">Enter an image URL (we will add file upload later)</p>
-                        </div>
+                        {/* Image Upload */}
+                        <ImageUpload 
+                        images={images}
+                        onImagesChange={setImages}
+                        />
                     </div>
 
                     {/* Submit Buttons */}

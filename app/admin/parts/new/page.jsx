@@ -3,18 +3,19 @@
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
+import ImageUpload from '@/components/ImageUpload'
 
 export default function AddPartPage(){
     const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category_id: '',
-    stock_status: 'in_stock',
-    featured: false,
-    images: ['']
+        name: '',
+        description: '',
+        retail_price: '',  
+        category_id: '',
+        stock_status: 'in_stock',
+        featured: false
     })
-    const [categories, setCategories] = useState([])
+    const [categories, setCategories] = useState([]);
+    const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -44,8 +45,17 @@ export default function AddPartPage(){
         setError(null)
 
         const { data, error } = await supabase
-            .from('parts')
-            .insert([formData])
+        .from('parts')
+        .insert([{
+            name: formData.name,
+            description: formData.description,
+            retail_price: parseFloat(formData.retail_price),
+            customer_price: (parseFloat(formData.retail_price) * 0.95).toFixed(2),
+            category_id: formData.category_id,
+            stock_status: formData.stock_status,
+            featured: formData.featured,
+            images: images  // ← Uses the uploaded images
+        }])
 
         if (error) {
             setError(error.message)
@@ -110,12 +120,12 @@ export default function AddPartPage(){
                     {/* Price Field */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Price *
+                            Retail Price *
                         </label>
                         <input
                             type="number"
-                            name="price"
-                            value={formData.price}
+                            name="retail_price"
+                            value={formData.retail_price}
                             onChange={handleChange}
                             required
                             step="0.01"
@@ -164,21 +174,11 @@ export default function AddPartPage(){
                         </select>
                     </div>
 
-                    {/* Image URL Field */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Image URL
-                        </label>
-                        <input
-                            type="url"
-                            name="images"
-                            value={formData.images[0]}
-                            onChange={(e) => setFormData({...formData, images: [e.target.value]})}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                            placeholder="https://example.com/image.jpg"
-                        />
-                        <p className="text-sm text-gray-500 mt-1">Enter an image URL (we will add file upload later)</p>
-                    </div>
+                    {/* Image Upload */}
+                    <ImageUpload 
+                    images={images}
+                    onImagesChange={setImages}
+                    />
 
                     {/* Featured Checkbox */}
                     <div className="flex items-center">

@@ -3,6 +3,7 @@
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
+import ImageUpload from '@/components/ImageUpload'
 
 export default function EditTruckPage({ params }){
     const [truckId, setTruckId] = useState(null)
@@ -25,6 +26,7 @@ export default function EditTruckPage({ params }){
         status: 'available',
         images: ['']
     })
+    const [images, setImages] = useState([])
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState(null)
@@ -74,6 +76,7 @@ export default function EditTruckPage({ params }){
                 status: data.status || 'available',
                 images: data.images || ['']
             })
+            setImages(data.images || []);
         }
         setLoading(false)
     }
@@ -88,7 +91,8 @@ export default function EditTruckPage({ params }){
             setFormData({
                 ...formData,
                 retail_price: value,
-                customer_price: customerPrice
+                customer_price: customerPrice,
+                
             })
         } else {
             setFormData({
@@ -110,7 +114,8 @@ export default function EditTruckPage({ params }){
             mileage: parseInt(formData.mileage),
             gvw: parseInt(formData.gvw),
             retail_price: parseFloat(formData.retail_price),
-            customer_price: parseFloat(formData.customer_price)
+            customer_price: parseFloat(formData.customer_price),
+            images: images
         }
 
         const { error } = await supabase
@@ -479,21 +484,11 @@ export default function EditTruckPage({ params }){
                             </select>
                         </div>
 
-                        {/* Image URL */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Image URL
-                            </label>
-                            <input
-                                type="url"
-                                name="images"
-                                value={formData.images[0]}
-                                onChange={(e) => setFormData({...formData, images: [e.target.value]})}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                placeholder="https://example.com/truck-image.jpg"
-                            />
-                            <p className="text-sm text-gray-500 mt-1">Enter an image URL (we will add file upload later)</p>
-                        </div>
+                        {/* Image Upload */}
+                        <ImageUpload 
+                        images={images}
+                        onImagesChange={setImages}
+                        />
                     </div>
 
                     {/* Submit Buttons */}
