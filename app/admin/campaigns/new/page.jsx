@@ -201,7 +201,7 @@ export default function NewCampaignPage() {
                                                     />
                                                 )}
                                                 <h3 className="font-medium text-sm">{part.name}</h3>
-                                                <p className="text-sm text-gray-600">${part.price}</p>
+                                                <p className="text-sm text-gray-600">${part.retail_price}</p>
                                             </div>
                                         </div>
                                     </div>
