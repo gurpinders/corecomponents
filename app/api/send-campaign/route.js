@@ -10,10 +10,7 @@ const supabase = createClient(
 
 export async function POST(request) {
   try {
-    console.log("🚀 Send campaign API called");
-
     const { campaignId } = await request.json();
-    console.log("📧 Campaign ID:", campaignId);
 
     // Fetch campaign details
     const { data: campaign, error: campaignError } = await supabase
@@ -23,10 +20,8 @@ export async function POST(request) {
       .single();
 
     if (campaignError) {
-      console.error("❌ Campaign fetch error:", campaignError);
       return Response.json({ error: campaignError.message }, { status: 400 });
     }
-    console.log("✅ Campaign fetched:", campaign.campaign_name);
 
     // Fetch campaign products
     const { data: campaignParts, error: partsError } = await supabase
@@ -36,10 +31,8 @@ export async function POST(request) {
       .order("display_order");
 
     if (partsError) {
-      console.error("❌ Parts fetch error:", partsError);
       return Response.json({ error: partsError.message }, { status: 400 });
     }
-    console.log("✅ Products fetched:", campaignParts.length);
 
     // Fetch subscribed customers
     const { data: customers, error: customersError } = await supabase
@@ -48,24 +41,18 @@ export async function POST(request) {
       .eq("subscribed", true);
 
     if (customersError) {
-      console.error("❌ Customers fetch error:", customersError);
       return Response.json({ error: customersError.message }, { status: 400 });
     }
-    console.log("✅ Subscribed customers found:", customers.length);
 
     if (customers.length === 0) {
-      console.error("❌ No subscribed customers");
       return Response.json(
         { error: "No subscribed customers found" },
         { status: 400 }
       );
     }
 
-    console.log("📤 Starting to send emails...");
-
     // Send emails to all subscribed customers
     const emailPromises = customers.map((customer) => {
-      console.log("📧 Preparing email for:", customer.email);
       const emailHtml = createEmailTemplate(campaign, campaignParts, customer);
 
       return resend.emails.send({
@@ -76,8 +63,7 @@ export async function POST(request) {
       });
     });
 
-    const results = await Promise.all(emailPromises);
-    console.log("✅ Email send results:", results);
+    await Promise.all(emailPromises);
 
     // Update campaign status
     await supabase
@@ -89,14 +75,12 @@ export async function POST(request) {
       })
       .eq("id", campaignId);
 
-    console.log("✅ Campaign marked as sent");
-
     return Response.json({
       success: true,
       message: `Campaign sent to ${customers.length} customers`,
     });
   } catch (error) {
-    console.error("❌ Send campaign error:", error);
+    console.error("Send campaign error:", error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 }
