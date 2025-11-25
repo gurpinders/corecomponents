@@ -22,23 +22,49 @@ export default async function Home() {
     <div>
       <Header />
       <main className="min-h-screen">
-        <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white py-32">
-          <div className="max-w-4xl mx-auto text-center px-6">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Professional Trucking Parts & Components
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8">
-              Quality parts for your fleet since 2020. Competitive pricing, fast
-              delivery, expert service.
-            </p>
-            <Link
-              href="/catalog"
-              className="inline-block bg-white text-gray-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors"
-            >
-              Browse Catalog
-            </Link>
-          </div>
-        </div>
+        {/* Hero Section - WITH BRANDED BACKGROUND */}
+        <section className="relative bg-[#1a1f3a] text-white py-32 overflow-hidden">
+            {/* Background Image Pattern */}
+            <div className="absolute inset-0 z-0">
+                <Image
+                    src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/hero_background.png"
+                    alt="CoreComponents Background"
+                    fill
+                    className="object-cover opacity-70"
+                    priority
+                    quality={100}
+                />
+            </div>
+            
+            {/* Subtle Dark Overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent z-10"></div>
+            
+            {/* Content */}
+            <div className="max-w-7xl mx-auto px-6 relative z-20">
+                <div className="max-w-3xl">
+                    <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight drop-shadow-lg">
+                        Professional Trucking Parts & Components
+                    </h1>
+                    <p className="text-xl md:text-2xl mb-8 text-gray-100 drop-shadow-md">
+                        Quality parts for your fleet since 2020. Competitive pricing, fast delivery, expert service.
+                    </p>
+                    <div className="flex gap-4">
+                        <Link
+                            href="/catalog"
+                            className="bg-yellow-500 text-black px-8 py-4 rounded-lg text-lg font-bold hover:bg-yellow-400 transition-colors shadow-xl"
+                        >
+                            Browse Catalog
+                        </Link>
+                        <Link
+                            href="/trucks"
+                            className="bg-white text-black px-8 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition-colors shadow-xl"
+                        >
+                            View Trucks
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </section>
         <div>
           <section className="py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-6">

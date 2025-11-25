@@ -58,7 +58,7 @@ export default function CatalogPage() {
         // Fetch parts in this category
         let query = supabase
             .from('parts')
-            .select('*')
+            .select('*')  // Back to selecting all fields
             .eq('category_id', categoryId)
             .order('name')
 
@@ -131,6 +131,7 @@ export default function CatalogPage() {
                                                 src={category.image}
                                                 alt={category.name}
                                                 fill
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                                                 className="object-cover transition-transform duration-300 group-hover:scale-110"
                                             />
                                         ) : (
@@ -249,6 +250,7 @@ export default function CatalogPage() {
                                                     src={part.images[0]}
                                                     alt={part.name}
                                                     fill
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                     className="object-cover"
                                                 />
                                             ) : (

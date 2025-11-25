@@ -221,22 +221,36 @@ function createEmailTemplate(campaign, campaignParts, customer) {
           <td align="center" style="padding: 20px 0;">
             <table width="650" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; max-width: 650px;">
               
-              <!-- Hero Section -->
+              <!-- Hero Header with Pattern Background (Works in most clients) -->
               <tr>
-                <td style="background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); padding: 50px 40px; text-align: center; color: white;">
-                  <div style="font-size: 32px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px;">CORECOMPONENTS</div>
-                  <div style="font-size: 13px; opacity: 0.8; margin-bottom: 30px; letter-spacing: 1px;">QUALITY AUTOMOTIVE & TRUCKING PARTS</div>
-                  <h1 style="font-size: 36px; margin: 0 0 15px 0; line-height: 1.2;">${
-                    campaign.headline || "Premium Parts Selection"
-                  }</h1>
-                  <p style="font-size: 17px; margin: 0 0 30px 0; opacity: 0.9;">Handpicked heavy-duty parts for your fleet</p>
-                  <table cellpadding="0" cellspacing="0" border="0" align="center">
+                <td background="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/hero_background.png" bgcolor="#1a1f3a" style="background-image: url('${
+                  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+                }/hero-background.png'); background-size: cover; background-position: center; padding: 50px 20px; text-align: center;">
+                  <!--[if gte mso 9]>
+                  <v:image xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="border: 0; display: inline-block; width: 650px; height: 300px;" src="${
+                    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+                  }/hero-background.png" />
+                  <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="border: 0; display: inline-block; position: absolute; width: 650px; height: 300px;">
+                  <v:fill opacity="0%" color="#1a1f3a" />
+                  <v:textbox inset="0,0,0,0">
+                  <![endif]-->
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
-                      <td style="background-color: #FFD700; border-radius: 6px;">
-                        <a href="${baseUrl}/catalog" style="display: inline-block; color: #000000; padding: 16px 40px; text-decoration: none; font-weight: bold; font-size: 15px;">SHOP NEW ARRIVALS →</a>
+                      <td style="background-color: rgba(0, 0, 0, 0.6); padding: 30px; border-radius: 8px;">
+                        <!-- Logo -->
+                        <img src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/logo.png" alt="CoreComponents" style="max-width: 250px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+                        
+                        <!-- Headline -->
+                        <h1 style="color: #ffffff; font-size: 32px; margin: 0; font-weight: bold; line-height: 1.3;">${
+                          campaign.headline
+                        }</h1>
                       </td>
                     </tr>
                   </table>
+                  <!--[if gte mso 9]>
+                  </v:textbox>
+                  </v:rect>
+                  <![endif]-->
                 </td>
               </tr>
 
