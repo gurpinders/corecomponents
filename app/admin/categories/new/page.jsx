@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import ImageUpload from '@/components/ImageUpload'
 
 export default function AddCategoryPage() {
     const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ export default function AddCategoryPage() {
         description: '',
         display_order: ''
     })
+    const [images, setImages] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
@@ -30,7 +32,12 @@ export default function AddCategoryPage() {
 
         const { error } = await supabase
             .from('categories')
-            .insert([formData])
+            .insert([{
+                name: formData.name,
+                description: formData.description,
+                display_order: formData.display_order,
+                image: images[0] || null  // Save first image or null
+            }])
 
         if (error) {
             setError(error.message)
@@ -39,6 +46,7 @@ export default function AddCategoryPage() {
             return
         }
 
+        alert('Category added successfully!')
         router.push('/admin/categories')
     }
 
@@ -48,7 +56,7 @@ export default function AddCategoryPage() {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold">Add New Category</h1>
-                    <p className="text-gray-600 mt-2">Create a new product category</p>
+                    <p className="text-gray-600 mt-2">Create a new product category with an image</p>
                 </div>
 
                 {/* Error Message */}
@@ -105,6 +113,20 @@ export default function AddCategoryPage() {
                             placeholder="1, 2, 3..."
                         />
                         <p className="text-sm text-gray-500 mt-1">Lower numbers appear first</p>
+                    </div>
+
+                    {/* Category Image Upload */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Category Image
+                        </label>
+                        <ImageUpload 
+                            images={images}
+                            onImagesChange={setImages}
+                        />
+                        <p className="text-sm text-gray-500 mt-2">
+                            Upload one image that represents this category (recommended: 600x400px)
+                        </p>
                     </div>
 
                     {/* Submit Button */}

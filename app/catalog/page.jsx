@@ -1,224 +1,330 @@
 'use client'
 
-import Header from '@/components/Header.jsx'
-import Footer from '@/components/Footer.jsx'
-import Image from 'next/image'
+import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useCart } from '@/lib/CartContext'
-import { useState, useEffect } from 'react'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import Image from 'next/image'
 
-export default function Catalog(){
-    const [products, setProducts] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [selectedCategory, setSelectedCategory] = useState('all')
-    const [selectedStock, setSelectedStock] = useState('all')
+export default function CatalogPage() {
+    const searchParams = useSearchParams()
+    const router = useRouter()
+    const { user, addToCart } = useCart()
+    
+    const categoryId = searchParams.get('category')
+    const searchQuery = searchParams.get('search')
+    
     const [categories, setCategories] = useState([])
-    const [sortBy, setSortBy] = useState('name-asc')
-
-    const { user } = useCart()
+    const [parts, setParts] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [search, setSearch] = useState(searchQuery || '')
 
     useEffect(() => {
-        async function fetchData() {
-            setLoading(true)
-            
-            const { data: productsData } = await supabase.from('parts').select('*').order('name')
-            const { data: categoriesData } = await supabase.from('categories').select('*').order('name')
-            
-            if (productsData) setProducts(productsData)
-            if (categoriesData) setCategories(categoriesData)
-            
-            setLoading(false)
+        if (categoryId) {
+            fetchCategoryAndParts()
+        } else {
+            fetchCategories()
         }
-        
-        fetchData()
-    }, [])
+    }, [categoryId])
 
-    const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
-        const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory
-        const matchesStock = selectedStock === 'all' || product.stock_status === selectedStock
-        return matchesSearch && matchesCategory && matchesStock
-    })
+    const fetchCategories = async () => {
+        const { data } = await supabase
+            .from('categories')
+            .select('*')
+            .order('display_order')
 
-    const sortedProducts = [...filteredProducts].sort((a, b) => {
-        switch(sortBy) {
-            case 'name-asc':
-                return a.name.localeCompare(b.name)
-            case 'name-desc':
-                return b.name.localeCompare(a.name)
-            case 'price-asc':
-                return a.retail_price - b.retail_price
-            case 'price-desc':
-                return b.retail_price - a.retail_price
-            case 'date-newest':
-                return new Date(b.created_at) - new Date(a.created_at)
-            case 'date-oldest':
-                return new Date(a.created_at) - new Date(b.created_at)
-            default:
-                return 0
+        if (data) {
+            setCategories(data)
         }
-    })
+        setLoading(false)
+    }
+
+    const fetchCategoryAndParts = async () => {
+        // Fetch selected category
+        const { data: categoryData } = await supabase
+            .from('categories')
+            .select('*')
+            .eq('id', categoryId)
+            .single()
+
+        if (categoryData) {
+            setSelectedCategory(categoryData)
+        }
+
+        // Fetch parts in this category
+        let query = supabase
+            .from('parts')
+            .select('*')
+            .eq('category_id', categoryId)
+            .order('name')
+
+        if (searchQuery) {
+            query = query.ilike('name', `%${searchQuery}%`)
+        }
+
+        const { data: partsData } = await query
+
+        if (partsData) {
+            setParts(partsData)
+        }
+        setLoading(false)
+    }
+
+    const handleSearch = (e) => {
+        e.preventDefault()
+        if (categoryId && search) {
+            router.push(`/catalog?category=${categoryId}&search=${search}`)
+        }
+    }
+
+    const handleAddToCart = (part) => {
+        const cartItem = {
+            ...part,
+            price: user ? part.customer_price : part.retail_price
+        }
+        addToCart(cartItem, 1)
+        alert(`${part.name} added to cart!`)
+    }
 
     if (loading) {
         return (
             <div>
                 <Header />
-                <main className='min-h-screen bg-gray-50 py-12 flex items-center justify-center'>
-                    <p className='text-xl text-gray-600'>Loading products...</p>
+                <main className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+                    <p className="text-xl text-gray-600">Loading...</p>
                 </main>
                 <Footer />
             </div>
         )
     }
 
-    return(
-        <div>
-            <Header />
-            <main className='min-h-screen bg-gray-50 py-12'>
-                <div className='max-w-7xl mx-auto px-6'>
-                    <h1 className='text-4xl font-bold mb-8 text-gray-900'>Parts Catalog</h1>
-                    
-                    {/* Login Prompt for Non-Logged-In Users */}
-                    {!user && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                            <p className="text-blue-900">
-                                <span className="font-medium">Sign in</span> to see exclusive customer pricing and save 5% on all parts!
-                            </p>
+    // CATEGORY GRID VIEW
+    if (!categoryId) {
+        
+        return (
+            <div>
+                <Header />
+                <main className="min-h-screen bg-gray-50 py-12">
+                    <div className="max-w-7xl mx-auto px-6">
+                        {/* Header */}
+                        <div className="mb-8">
+                            <h1 className="text-4xl font-bold mb-2">Browse Parts by Category</h1>
+                            <p className="text-gray-600">Select a category to view available parts</p>
                         </div>
-                    )}
 
-                    <div className='bg-white p-6 rounded-lg shadow-md mb-8'>
-                        <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Search
-                                </label>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search parts..."
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Category
-                                </label>
-                                <select 
-                                    value={selectedCategory} 
-                                    onChange={(e) => setSelectedCategory(e.target.value)} 
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                        {/* Category Grid - OPTION 1 DESIGN */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {categories.map((category) => (
+                                <Link
+                                    key={category.id}
+                                    href={`/catalog?category=${category.id}`}
+                                    className="relative h-[300px] rounded-lg overflow-hidden group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                                 >
-                                    <option value="all">All Categories</option>
-                                    {categories.map(category => (
-                                        <option key={category.id} value={category.id}>
+                                    {/* Category Image */}
+                                    <div className="absolute inset-0">
+                                        {category.image ? (
+                                            <Image
+                                                src={category.image}
+                                                alt={category.name}
+                                                fill
+                                                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center">
+                                                <div className="text-8xl opacity-30">🔧</div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+
+                                    {/* Content Overlay */}
+                                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10">
+                                        <h3 className="text-2xl font-bold mb-2 group-hover:text-yellow-400 transition-colors duration-300">
                                             {category.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Stock Status
-                                </label>
-                                <select
-                                    value={selectedStock}
-                                    onChange={(e) => setSelectedStock(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                >
-                                    <option value="all">All Stock Levels</option>
-                                    <option value="in_stock">In Stock</option>
-                                    <option value="low_stock">Low Stock</option>
-                                    <option value="out_of_stock">Out of Stock</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Sort By
-                                </label>
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                >
-                                    <option value="name-asc">Name (A-Z)</option>
-                                    <option value="name-desc">Name (Z-A)</option>
-                                    <option value="price-asc">Price (Low to High)</option>
-                                    <option value="price-desc">Price (High to Low)</option>
-                                    <option value="date-newest">Newest First</option>
-                                    <option value="date-oldest">Oldest First</option>
-                                </select>
-                            </div>
+                                        </h3>
+                                        {category.description && (
+                                            <p className="text-sm text-white/90 mb-3 line-clamp-2">
+                                                {category.description}
+                                            </p>
+                                        )}
+                                        <div className="flex items-center text-yellow-400 font-semibold">
+                                            <span>Browse Parts</span>
+                                            <svg 
+                                                className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" 
+                                                fill="none" 
+                                                stroke="currentColor" 
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
                     </div>
+                </main>
+                <Footer />
+            </div>
+        )
+    }
 
-                    <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8'>
-                        {sortedProducts?.map((product) => (
-                            <Link key={product.id} href={`/catalog/${product.id}`}>
-                                <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
-                                    {product.images && product.images[0] ? (
-                                        <Image 
-                                            src={product.images[0]} 
-                                            alt={product.name} 
-                                            width={400} 
-                                            height={300} 
-                                            className="w-full h-48 object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                                            <p className="text-gray-500">No image</p>
+    // PARTS LIST VIEW (when category is selected)
+    return (
+        <div>
+            <Header />
+            <main className="min-h-screen bg-gray-50 py-12">
+                <div className="max-w-7xl mx-auto px-6">
+                    {/* Breadcrumbs */}
+                    <div className="mb-6 flex items-center text-sm text-gray-600">
+                        <Link href="/catalog" className="hover:text-black">
+                            All Categories
+                        </Link>
+                        <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        <span className="text-black font-medium">{selectedCategory?.name}</span>
+                    </div>
+
+                    {/* Header */}
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold mb-2">{selectedCategory?.name}</h1>
+                        {selectedCategory?.description && (
+                            <p className="text-gray-600">{selectedCategory.description}</p>
+                        )}
+                    </div>
+
+                    {/* Search Bar */}
+                    <form onSubmit={handleSearch} className="mb-8">
+                        <div className="flex gap-4">
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search parts in this category..."
+                                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                            />
+                            <button
+                                type="submit"
+                                className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800"
+                            >
+                                Search
+                            </button>
+                        </div>
+                    </form>
+
+                    {/* Parts Count */}
+                    <div className="mb-6">
+                        <p className="text-gray-600">
+                            {parts.length} {parts.length === 1 ? 'part' : 'parts'} found
+                        </p>
+                    </div>
+
+                    {/* Parts Grid */}
+                    {parts.length === 0 ? (
+                        <div className="text-center py-12">
+                            <p className="text-xl text-gray-500 mb-4">No parts found in this category</p>
+                            <Link
+                                href="/catalog"
+                                className="inline-block bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800"
+                            >
+                                ← Back to Categories
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {parts.map((part) => (
+                                <div key={part.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
+                                    {/* Part Image */}
+                                    <Link href={`/catalog/${part.id}`}>
+                                        <div className="relative w-full h-48 bg-gray-100">
+                                            {part.images && part.images[0] ? (
+                                                <Image
+                                                    src={part.images[0]}
+                                                    alt={part.name}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                    <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                    <div className="p-4">
-                                        <h3 className="text-lg font-bold text-gray-900 mb-2">{product.name}</h3>
-                                        
-                                        {/* Pricing Display */}
-                                        {user ? (
-                                            // Logged in - show both prices
-                                            <div className="mb-2">
-                                                <p className="text-sm text-gray-500 line-through">
-                                                    ${product.retail_price}
-                                                </p>
-                                                <p className="text-xl font-bold text-green-600">
-                                                    ${product.customer_price}
-                                                </p>
-                                                <p className="text-xs text-green-600">
-                                                    You save ${(product.retail_price - product.customer_price).toFixed(2)}
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            // Not logged in - show retail price
-                                            <p className="text-xl font-semibold text-gray-900 mb-2">
-                                                Starting at ${product.retail_price}
+                                    </Link>
+
+                                    {/* Part Info */}
+                                    <div className="p-6">
+                                        <Link href={`/catalog/${part.id}`}>
+                                            <h3 className="text-lg font-bold mb-2 hover:text-blue-600">
+                                                {part.name}
+                                            </h3>
+                                        </Link>
+
+                                        {part.description && (
+                                            <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                                                {part.description}
                                             </p>
                                         )}
 
-                                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                                            product.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
-                                            product.stock_status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' :
-                                            'bg-red-100 text-red-800'
-                                        }`}>
-                                            {product.stock_status === 'in_stock' ? 'In Stock' :
-                                             product.stock_status === 'low_stock' ? 'Low Stock' :
-                                             'Out of Stock'}
-                                        </span>
+                                        {/* Stock Status */}
+                                        <div className="mb-4">
+                                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                                                part.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
+                                                part.stock_status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-red-100 text-red-800'
+                                            }`}>
+                                                {part.stock_status === 'in_stock' ? 'In Stock' :
+                                                 part.stock_status === 'low_stock' ? 'Low Stock' :
+                                                 'Out of Stock'}
+                                            </span>
+                                        </div>
+
+                                        {/* Pricing */}
+                                        <div className="mb-4">
+                                            {user ? (
+                                                <div>
+                                                    <p className="text-sm text-gray-500 line-through">${part.retail_price}</p>
+                                                    <p className="text-2xl font-bold text-green-600">${part.customer_price}</p>
+                                                    <p className="text-xs text-green-600">You save ${(part.retail_price - part.customer_price).toFixed(2)}</p>
+                                                </div>
+                                            ) : (
+                                                <p className="text-2xl font-bold">${part.retail_price}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleAddToCart(part)}
+                                                disabled={part.stock_status === 'out_of_stock'}
+                                                className="flex-1 bg-black text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                            >
+                                                Add to Cart
+                                            </button>
+                                            <Link
+                                                href={`/catalog/${part.id}`}
+                                                className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300"
+                                            >
+                                                Details
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
-                            </Link>
-                        ))}
-                    </div>
-
-                    {sortedProducts.length === 0 && (
-                        <div className="text-center py-12">
-                            <p className="text-gray-500 text-lg">No products found matching your filters.</p>
+                            ))}
                         </div>
                     )}
                 </div>
             </main>
-            <Footer/>
+            <Footer />
         </div>
     )
 }

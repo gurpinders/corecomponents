@@ -3,6 +3,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer.jsx";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { generateMetadata as generateMeta } from '@/lib/seo'
+
+export const metadata = generateMeta({
+    title: 'Premium Heavy-Duty Truck Parts & Complete Trucks',
+    description: 'CoreComponents offers premium parts for Freightliner, Peterbilt, Kenworth, and International trucks. Engine parts, brake systems, transmissions, and complete truck sales in Brampton, Ontario.',
+    path: '/'
+})
 
 export default async function Home() {
   const { data: products } = await supabase

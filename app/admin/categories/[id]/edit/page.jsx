@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import ImageUpload from '@/components/ImageUpload'
 
 export default function EditCategoryPage({ params }) {
     const [categoryId, setCategoryId] = useState(null)
@@ -11,6 +12,7 @@ export default function EditCategoryPage({ params }) {
         description: '',
         display_order: ''
     })
+    const [images, setImages] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
@@ -30,6 +32,10 @@ export default function EditCategoryPage({ params }) {
         }
 
         setFormData(data)
+        // Load existing image if it exists
+        if (data.image) {
+            setImages([data.image])
+        }
         setLoading(false)
     }
 
@@ -57,7 +63,12 @@ export default function EditCategoryPage({ params }) {
 
         const { error } = await supabase
             .from('categories')
-            .update(formData)
+            .update({
+                name: formData.name,
+                description: formData.description,
+                display_order: formData.display_order,
+                image: images[0] || null  // Save first image or null
+            })
             .eq('id', categoryId)
 
         if (error) {
@@ -67,6 +78,7 @@ export default function EditCategoryPage({ params }) {
             return
         }
 
+        alert('Category updated successfully!')
         router.push('/admin/categories')
     }
 
@@ -76,7 +88,7 @@ export default function EditCategoryPage({ params }) {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold">Edit Category</h1>
-                    <p className="text-gray-600 mt-2">Update the category details</p>
+                    <p className="text-gray-600 mt-2">Update the category details and image</p>
                 </div>
 
                 {/* Error Message */}
@@ -139,6 +151,20 @@ export default function EditCategoryPage({ params }) {
                                 placeholder="1, 2, 3..."
                             />
                             <p className="text-sm text-gray-500 mt-1">Lower numbers appear first</p>
+                        </div>
+
+                        {/* Category Image Upload */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Category Image
+                            </label>
+                            <ImageUpload 
+                                images={images}
+                                onImagesChange={setImages}
+                            />
+                            <p className="text-sm text-gray-500 mt-2">
+                                Upload one image that represents this category (recommended: 600x400px)
+                            </p>
                         </div>
 
                         {/* Submit Button */}

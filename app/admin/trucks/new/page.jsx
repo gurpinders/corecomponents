@@ -26,11 +26,77 @@ export default function AddTruckPage(){
         images: ['']
     })
     const [images, setImages] = useState([])
+    const [vinLookupLoading, setVinLookupLoading] = useState(false)
+    const [vinLookupError, setVinLookupError] = useState(null)
+    const [vinLookupSuccess, setVinLookupSuccess] = useState(false) 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
     const router = useRouter()
 
+    const handleVinLookup = async () => {
+        if (!formData.vin || formData.vin.length !== 17) {
+            setVinLookupError('Please enter a valid 17-character VIN')
+            return
+        }
+
+        setVinLookupLoading(true)
+        setVinLookupError(null)
+        setVinLookupSuccess(false)
+
+        try {
+            // Call NHTSA VIN Decoder API (free, no API key needed)
+            const response = await fetch(
+                `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${formData.vin}?format=json`
+            )
+            const data = await response.json()
+
+            console.log('🔍 VIN API Response:', data) // ← DEBUG LOG
+
+            if (data.Results && data.Results[0]) {
+                const result = data.Results[0]
+                
+                console.log('📊 Result Data:', result) // ← DEBUG LOG
+                console.log('❌ Error Code:', result.ErrorCode) // ← DEBUG LOG
+                console.log('🚚 Make:', result.Make) // ← DEBUG LOG
+                console.log('🚚 Model:', result.Model) // ← DEBUG LOG
+
+                // More lenient error checking - only reject if Make is empty
+                if (!result.Make || result.Make === '' || result.Make === 'Not Applicable') {
+                    setVinLookupError('No vehicle data found for this VIN')
+                    setVinLookupLoading(false)
+                    return
+                }
+
+                // Auto-fill form with VIN data
+                const updatedFormData = {
+                    ...formData,
+                    make: result.Make || formData.make,
+                    model: result.Model || formData.model,
+                    year: result.ModelYear || formData.year,
+                    engine: result.EngineModel 
+                        ? `${result.EngineModel} ${result.DisplacementL ? result.DisplacementL + 'L' : ''} ${result.FuelTypePrimary || ''}`.trim()
+                        : formData.engine,
+                    transmission: result.TransmissionStyle || formData.transmission,
+                    gvw: result.GVWR ? result.GVWR.replace(/[^0-9]/g, '') : formData.gvw,
+                    truck_category: result.BodyClass || formData.truck_category
+                }
+
+                console.log('✅ Updated Form Data:', updatedFormData) // ← DEBUG LOG
+
+                setFormData(updatedFormData)
+                setVinLookupSuccess(true)
+                setTimeout(() => setVinLookupSuccess(false), 3000)
+            } else {
+                setVinLookupError('No data found for this VIN')
+            }
+        } catch (err) {
+            console.error('VIN Lookup Error:', err)
+            setVinLookupError('Failed to lookup VIN. Please try again.')
+        } finally {
+            setVinLookupLoading(false)
+        }
+    }
     const handleChange = (e) => {
         const { name, value } = e.target
         
@@ -175,20 +241,46 @@ export default function AddTruckPage(){
                                 />
                             </div>
 
-                            {/* VIN */}
+                            {/* VIN with Lookup */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     VIN *
                                 </label>
-                                <input
-                                    type="text"
-                                    name="vin"
-                                    value={formData.vin}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                    placeholder="1FUJGHDV8CLHXXXXXX"
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        name="vin"
+                                        value={formData.vin}
+                                        onChange={handleChange}
+                                        required
+                                        maxLength="17"
+                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                                        placeholder="1FUJGHDV8CLHXXXXXX (17 characters)"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleVinLookup}
+                                        disabled={vinLookupLoading || !formData.vin || formData.vin.length !== 17}
+                                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        {vinLookupLoading ? 'Looking up...' : 'Lookup VIN'}
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Enter 17-character VIN and click "Lookup VIN" to auto-fill truck details
+                                </p>
+                                
+                                {/* VIN Lookup Messages */}
+                                {vinLookupError && (
+                                    <div className="mt-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+                                        {vinLookupError}
+                                    </div>
+                                )}
+                                {vinLookupSuccess && (
+                                    <div className="mt-2 bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded text-sm">
+                                        ✓ VIN data loaded successfully! Review and adjust fields as needed.
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
