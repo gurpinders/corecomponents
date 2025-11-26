@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Image from "next/image"
 import AdminProtection from "@/components/AdminProtection"
+import { useToast } from '@/lib/ToastContext'
 
 export default function NewCampaignPage() {
     const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ export default function NewCampaignPage() {
     const [error, setError] = useState(null)
 
     const router = useRouter()
+    const { success, error: showError } = useToast()
 
     // Fetch all parts for selection
     useEffect(() => {

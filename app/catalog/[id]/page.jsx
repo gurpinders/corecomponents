@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useCart } from '@/lib/CartContext'
 import { supabase } from '@/lib/supabase'
 import { useState, useEffect } from 'react'
+import { useToast } from '@/lib/ToastContext'
 
 export default function ProductDetailPage({ params }) {
     const [product, setProduct] = useState(null)
@@ -24,6 +25,7 @@ export default function ProductDetailPage({ params }) {
     const [formSuccess, setFormSuccess] = useState(false)
     const [formError, setFormError] = useState('')
     const { user, addToCart } = useCart()
+    const { success } = useToast()
 
     useEffect(() => {
         async function fetchProduct() {

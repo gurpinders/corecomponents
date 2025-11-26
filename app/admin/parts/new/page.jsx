@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import ImageUpload from '@/components/ImageUpload'
 import AdminProtection from '@/components/AdminProtection'
+import { useToast } from '@/lib/ToastContext'
 
 export default function AddPartPage(){
     const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ export default function AddPartPage(){
     const [error, setError] = useState(null);
 
     const router = useRouter();
+    const { success, error: showError } = useToast()
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -61,11 +63,11 @@ export default function AddPartPage(){
         if (error) {
             setError(error.message)
             setLoading(false)
-            alert('Error adding part: ' + error.message)
+            showError('Error creating part: ' + error.message)
             return
         }
 
-        // Success - redirect to parts list
+        success('Part created successfully!')
         router.push('/admin/parts')
     }
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ImageUpload from '@/components/ImageUpload'
 import AdminProtection from '@/components/AdminProtection'
+import { useToast } from '@/lib/ToastContext'
 
 
 export default function EditPartPage({ params }){
@@ -24,6 +25,7 @@ export default function EditPartPage({ params }){
     const [error, setError] = useState(null);
 
     const router = useRouter();
+    const { success, error: showError } = useToast()
 
     const fetchPartData = async (id) => {
         const { data, error } = await supabase.from('parts').select('*').eq('id', id).single();
@@ -91,11 +93,12 @@ export default function EditPartPage({ params }){
         if (error) {
             setError(error.message)
             setLoading(false)
-            alert('Error editing part: ' + error.message)
+            showError('Error updating part: ' + error.message)
             return
         }
 
         // Success - redirect to parts list
+        success('Part updated successfully!')
         router.push('/admin/parts')
     }
 

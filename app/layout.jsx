@@ -3,6 +3,9 @@ import { CartProvider } from '@/lib/CartContext'
 import "./globals.css";
 import { Inter } from 'next/font/google'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import { ToastProvider } from '@/lib/ToastContext'
+import { ConfirmProvider } from '@/components/ConfirmDialog'
+
 
 const inter = Inter({ 
     subsets: ['latin'],
@@ -31,7 +34,11 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <GoogleAnalytics />
         <CartProvider>
-          {children}
+          <ToastProvider>
+            <ConfirmProvider>
+              {children}
+            </ConfirmProvider>
+          </ToastProvider>
         </CartProvider>
       </body>
     </html>

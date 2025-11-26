@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import ImageUpload from '@/components/ImageUpload'
 import AdminProtection from '@/components/AdminProtection'
+import { useToast } from '@/lib/ToastContext'
 
 export default function EditCategoryPage({ params }) {
     const [categoryId, setCategoryId] = useState(null)
@@ -18,6 +19,7 @@ export default function EditCategoryPage({ params }) {
     const [error, setError] = useState(null)
 
     const router = useRouter()
+    const { success, error: showError } = useToast()
 
     const fetchCategoryData = async (id) => {
         const { data, error } = await supabase
@@ -75,11 +77,11 @@ export default function EditCategoryPage({ params }) {
         if (error) {
             setError(error.message)
             setLoading(false)
-            alert('Error updating category: ' + error.message)
+            showError('Error updating category: ' + error.message)
             return
         }
 
-        alert('Category updated successfully!')
+        success('Category updated successfully!')
         router.push('/admin/categories')
     }
 

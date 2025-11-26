@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import ImageUpload from '@/components/ImageUpload'
 import AdminProtection from "@/components/AdminProtection"
+import { useToast } from '@/lib/ToastContext'
 
 export default function AddTruckPage(){
     const [formData, setFormData] = useState({
@@ -34,6 +35,7 @@ export default function AddTruckPage(){
     const [error, setError] = useState(null)
 
     const router = useRouter()
+    const { success, error: showError } = useToast()
 
     const handleVinLookup = async () => {
         if (!formData.vin || formData.vin.length !== 17) {
@@ -140,13 +142,12 @@ export default function AddTruckPage(){
 
         if (error) {
             setError(error.message)
-            setLoading(false)
-            alert('Error adding truck: ' + error.message)
+            setSaving(false)
+            showError('Error creating truck: ' + error.message)
             return
         }
 
-        // Success - redirect to trucks list
-        alert('Truck added successfully!')
+        success('Truck created successfully!')
         router.push('/admin/trucks')
     }
 

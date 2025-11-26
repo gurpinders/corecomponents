@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import AdminProtection from "@/components/AdminProtection"
+import { useToast } from '@/lib/ToastContext'
+import { useConfirm } from '@/components/ConfirmDialog'
 
 export default function AdminCampaignsPage() {
     const [campaigns, setCampaigns] = useState([])
@@ -13,6 +15,8 @@ export default function AdminCampaignsPage() {
     const [sending, setSending] = useState(null)
 
     const router = useRouter()
+    const { success } = useToast()
+    const { confirm } = useConfirm()
 
     const fetchCampaigns = async () => {
         const { data, error } = await supabase
@@ -35,7 +39,15 @@ export default function AdminCampaignsPage() {
     }, [])
 
     const handleSendCampaign = async (campaignId) => {
-        if (!confirm('Are you sure you want to send this campaign to all subscribed customers?')) return
+        const confirmed = await confirm({
+            title: 'Send Campaign',
+            message: 'Are you sure you want to send this campaign to all subscribed customers?',
+            confirmText: 'Send Campaign',
+            cancelText: 'Cancel',
+            type: 'info'
+        })
+
+        if (!confirmed) return
 
         setSending(campaignId)
 
@@ -54,26 +66,35 @@ export default function AdminCampaignsPage() {
                 throw new Error(data.error || 'Failed to send campaign')
             }
 
-            alert(data.message || 'Campaign sent successfully!')
+            success(data.message || 'Campaign sent successfully!')
             fetchCampaigns()
-        } catch (error) {
-            alert('Error sending campaign: ' + error.message)
+        } catch (err) {
+            error('Error sending campaign: ' + err.message)
         } finally {
             setSending(null)
         }
     }
 
     const handleDelete = async (campaignId) => {
-        if (!confirm('Are you sure you want to delete this campaign?')) return
+        const confirmed = await confirm({
+            title: 'Delete Campaign',
+            message: 'Are you sure you want to delete this campaign?',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            type: 'danger'
+        })
 
-        const { error } = await supabase
+        if (!confirmed) return
+
+        const { error: deleteError } = await supabase
             .from('email_campaigns')
             .delete()
             .eq('id', campaignId)
 
-        if (error) {
-            alert('Error deleting campaign: ' + error.message)
+        if (deleteError) {
+            error('Failed to delete campaign: ' + deleteError.message)
         } else {
+            success('Campaign deleted successfully!')
             fetchCampaigns()
         }
     }

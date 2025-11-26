@@ -1,0 +1,92 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - heading "Admin Login" [level=1] [ref=e4]
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: Email
+        - textbox "admin@example.com" [ref=e8]
+      - generic [ref=e9]:
+        - generic [ref=e10]: Password
+        - textbox "••••••••" [ref=e11]
+      - button "Sign In" [ref=e12] [cursor=pointer]
+    - link "← Back to Website" [ref=e14] [cursor=pointer]:
+      - /url: /
+  - generic [active]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - navigation [ref=e20]:
+            - button "previous" [disabled] [ref=e21]:
+              - img "previous" [ref=e22]
+            - generic [ref=e24]:
+              - generic [ref=e25]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e26]:
+              - img "next" [ref=e27]
+          - img
+        - generic [ref=e29]:
+          - link "Next.js 16.0.3 (stale) Turbopack" [ref=e30] [cursor=pointer]:
+            - /url: https://nextjs.org/docs/messages/version-staleness
+            - img [ref=e31]
+            - generic "There is a newer version (16.0.4) available, upgrade recommended!" [ref=e33]: Next.js 16.0.3 (stale)
+            - generic [ref=e34]: Turbopack
+          - img
+      - dialog "Build Error" [ref=e36]:
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - generic [ref=e43]: Build Error
+              - generic [ref=e44]:
+                - button "Copy Error Info" [ref=e45] [cursor=pointer]:
+                  - img [ref=e46]
+                - button "No related documentation found" [disabled] [ref=e48]:
+                  - img [ref=e49]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e51] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e52]
+            - generic [ref=e61]: Error parsing package.json file
+          - generic [ref=e63]:
+            - generic [ref=e65]:
+              - img [ref=e67]
+              - generic [ref=e69]: ./package.json (10:5)
+              - button "Open in editor" [ref=e70] [cursor=pointer]:
+                - img [ref=e72]
+            - generic [ref=e75]:
+              - generic [ref=e76]: Error parsing package.json file
+              - generic [ref=e77]: 8 |
+              - text: "\"start\":"
+              - generic [ref=e78]: "\"next start\""
+              - text: ","
+              - generic [ref=e79]: 9 |
+              - text: "\"lint\": \"eslint\", >"
+              - generic [ref=e80]: 10 |
+              - generic [ref=e81]: "{"
+              - generic [ref=e82]: "|"
+              - text: ^
+              - generic [ref=e83]: 11 |
+              - text: "\"scripts\":"
+              - generic [ref=e84]: "{"
+              - generic [ref=e85]: 12 |
+              - text: "\"test\":"
+              - generic [ref=e86]: "\"playwright test\""
+              - text: ","
+              - generic [ref=e87]: 13 |
+              - text: "\"test:headed\":"
+              - generic [ref=e88]: "\"playwright test --headed\""
+              - text: ","
+              - generic [ref=e89]: "package.json is not parseable: invalid JSON: key must be a string at line 10 column 5"
+        - generic [ref=e90]: "1"
+        - generic [ref=e91]: "2"
+    - generic [ref=e96] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e97]:
+        - img [ref=e98]
+      - button "Open issues overlay" [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]: "0"
+          - generic [ref=e105]: "1"
+        - generic [ref=e106]: Issue
+  - alert [ref=e107]
+```

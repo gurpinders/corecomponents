@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import AdminProtection from "@/components/AdminProtection"
+import { useToast } from '@/lib/ToastContext'
+import { useConfirm } from '@/components/ConfirmDialog'
 
 export default function AdminCategoriesPage() {
     const [categories, setCategories] = useState([])
@@ -12,6 +14,8 @@ export default function AdminCategoriesPage() {
     const [error, setError] = useState(null)
 
     const router = useRouter()
+    const { success } = useToast()
+    const { confirm } = useConfirm()
 
     const fetchCategories = async () => {
         const { data, error } = await supabase
@@ -33,17 +37,26 @@ export default function AdminCategoriesPage() {
         fetchCategories()
     }, [])
 
-    const handleDelete = async (categoryId) => {
-        if (!confirm('Are you sure you want to delete this category? Parts in this category will have their category set to null.')) return
-
-        const { error } = await supabase
+    const handleDelete = async (categoryId, categoryName) => {
+        const confirmed = await confirm({
+            title: 'Delete Category',
+            message: `Are you sure you want to delete "${categoryName}"? This will not delete parts in this category.`,
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            type: 'danger'
+        })
+        
+        if (!confirmed) return
+        
+        const { error: deleteError } = await supabase
             .from('categories')
             .delete()
             .eq('id', categoryId)
-
-        if (error) {
-            alert('Error deleting category: ' + error.message)
+        
+        if (deleteError) {
+            error('Failed to delete category: ' + deleteError.message)
         } else {
+            success('Category deleted successfully!')
             fetchCategories()
         }
     }

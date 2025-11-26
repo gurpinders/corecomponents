@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import ImageUpload from '@/components/ImageUpload'
 import AdminProtection from "@/components/AdminProtection"
+import { useToast } from '@/lib/ToastContext'
 
 export default function EditTruckPage({ params }){
     const [truckId, setTruckId] = useState(null)
@@ -36,6 +37,7 @@ export default function EditTruckPage({ params }){
     const [vinLookupError, setVinLookupError] = useState(null)
 
     const router = useRouter()
+    const { success, error: showError } = useToast()
 
     useEffect(() => {
         const loadTruck = async () => {
@@ -200,12 +202,12 @@ export default function EditTruckPage({ params }){
         if (error) {
             setError(error.message)
             setSaving(false)
-            alert('Error updating truck: ' + error.message)
+            showError('Error updating truck: ' + error.message)
             return
         }
 
         // Success - redirect to trucks list
-        alert('Truck updated successfully!')
+        success('Truck updated successfully!')
         router.push('/admin/trucks')
     }
 

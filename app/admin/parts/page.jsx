@@ -6,13 +6,18 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Image from "next/image";
 import AdminProtection from '@/components/AdminProtection'
+import { useToast } from '@/lib/ToastContext'
+import { useConfirm } from '@/components/ConfirmDialog'
 
 export default function AdminPartsPage(){
+    const { success } = useToast()
+    const { confirm } = useConfirm()
     const [parts, setParts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const router = useRouter();
+    
 
     const fetchParts = async() => {
         const { data, error } = await supabase
@@ -31,23 +36,26 @@ export default function AdminPartsPage(){
     }
 
     const handleDelete = async (partId, partName) => {
-        // Better confirmation dialog
-        const confirmed = window.confirm(
-            `Are you sure you want to delete "${partName}"?\n\nThis action cannot be undone.`
-        )
+        const confirmed = await confirm({
+            title: 'Delete Part',
+            message: `Are you sure you want to delete "${partName}"? This action cannot be undone.`,
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            type: 'danger'
+        })
         
         if (!confirmed) return
         
-        const { error } = await supabase
+        const { error: deleteError } = await supabase
             .from('parts')
             .delete()
             .eq('id', partId)
         
-        if (error) {
-            alert('Error deleting part: ' + error.message)
+        if (deleteError) {
+            error('Failed to delete part: ' + deleteError.message)
         } else {
-            alert('Part deleted successfully!')
-            fetchParts() // Refresh the list
+            success('Part deleted successfully!')
+            fetchParts()
         }
     }
 

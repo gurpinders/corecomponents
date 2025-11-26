@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Image from "next/image";
 import AdminProtection from "@/components/AdminProtection";
+import { useToast } from '@/lib/ToastContext'
+import { useConfirm } from '@/components/ConfirmDialog'
 
 export default function AdminTrucksPage(){
     const [trucks, setTrucks] = useState([]);
@@ -13,6 +15,8 @@ export default function AdminTrucksPage(){
     const [error, setError] = useState(null);
 
     const router = useRouter();
+    const { success } = useToast()
+    const { confirm } = useConfirm()
 
     const fetchTrucks = async() => {
         const { data, error } = await supabase
@@ -31,19 +35,23 @@ export default function AdminTrucksPage(){
     }
 
     const handleDelete = async (truckId, truckName) => {
-        const confirmed = window.confirm(
-            `Are you sure you want to delete "${truckName}"?\n\nThis action cannot be undone.`
-        )
+        const confirmed = await confirm({
+            title: 'Delete Truck',
+            message: `Are you sure you want to delete "${truckName}"? This action cannot be undone.`,
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            type: 'danger'
+        })
         
         if (!confirmed) return
         
-        const { error } = await supabase.from('trucks').delete().eq('id', truckId)
+        const { error: deleteError } = await supabase.from('trucks').delete().eq('id', truckId)
         
-        if (error) {
-            alert('Error deleting truck: ' + error.message)
+        if (deleteError) {
+            error('Failed to delete truck: ' + deleteError.message)
         } else {
-            alert('Truck deleted successfully!')
-            fetchTrucks() // Refresh the list
+            success('Truck deleted successfully!')
+            fetchTrucks()
         }
     }
 

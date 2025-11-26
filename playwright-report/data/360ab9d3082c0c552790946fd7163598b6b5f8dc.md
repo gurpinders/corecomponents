@@ -1,0 +1,154 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "CoreComponents Logo" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "CoreComponents Logo" [ref=e7]
+        - navigation [ref=e8]:
+          - list [ref=e9]:
+            - listitem [ref=e10]:
+              - link "Home" [ref=e11] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e12]:
+              - link "Parts" [ref=e13] [cursor=pointer]:
+                - /url: /catalog
+                - text: Parts
+                - img [ref=e14]
+            - listitem [ref=e16]:
+              - link "Trucks" [ref=e17] [cursor=pointer]:
+                - /url: /trucks
+            - listitem [ref=e18]:
+              - link "Services" [ref=e19] [cursor=pointer]:
+                - /url: /services
+                - text: Services
+                - img [ref=e20]
+            - listitem [ref=e22]:
+              - link "About" [ref=e23] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e24]:
+              - link "Contact" [ref=e25] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e26]:
+              - link "Login" [ref=e27] [cursor=pointer]:
+                - /url: /login
+            - listitem [ref=e28]:
+              - link "Sign Up" [ref=e29] [cursor=pointer]:
+                - /url: /signup
+            - listitem [ref=e30]:
+              - link [ref=e31] [cursor=pointer]:
+                - /url: /cart
+                - img [ref=e32]
+      - generic [ref=e34]: "📞 Call Us: 647-993-8235|🚚 Free Delivery in GTA|✨ Save 5% as a Registered Customer"
+    - main [ref=e35]:
+      - generic [ref=e36]:
+        - heading "Your Cart is Empty" [level=1] [ref=e37]
+        - paragraph [ref=e38]: Add items to your cart before requesting a quote.
+        - link "Browse Catalog" [ref=e39] [cursor=pointer]:
+          - /url: /catalog
+    - contentinfo [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - heading "CoreComponents" [level=3] [ref=e44]
+            - paragraph [ref=e45]: Quality Trucking Parts Since 2020
+          - generic [ref=e46]:
+            - heading "Quick Links" [level=3] [ref=e47]
+            - list [ref=e48]:
+              - listitem [ref=e49]:
+                - link "Home" [ref=e50] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e51]:
+                - link "Catalog" [ref=e52] [cursor=pointer]:
+                  - /url: /catalog
+              - listitem [ref=e53]:
+                - link "About" [ref=e54] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e55]:
+                - link "Contact" [ref=e56] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e57]:
+            - heading "Contact Us" [level=3] [ref=e58]
+            - paragraph [ref=e59]: "Phone: (647) 993-8235"
+            - paragraph [ref=e60]: "Email: info@ccomponents.ca"
+            - paragraph [ref=e61]: "Mon-Sat: 8AM - 9PM EST"
+        - paragraph [ref=e63]: © 2025 CoreComponents. All rights reserved.
+  - generic [active]:
+    - generic [ref=e66]:
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - navigation [ref=e69]:
+            - button "previous" [disabled] [ref=e70]:
+              - img "previous" [ref=e71]
+            - generic [ref=e73]:
+              - generic [ref=e74]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e75]:
+              - img "next" [ref=e76]
+          - img
+        - generic [ref=e78]:
+          - link "Next.js 16.0.3 (stale) Turbopack" [ref=e79] [cursor=pointer]:
+            - /url: https://nextjs.org/docs/messages/version-staleness
+            - img [ref=e80]
+            - generic "There is a newer version (16.0.4) available, upgrade recommended!" [ref=e82]: Next.js 16.0.3 (stale)
+            - generic [ref=e83]: Turbopack
+          - img
+      - dialog "Build Error" [ref=e85]:
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - generic [ref=e92]: Build Error
+              - generic [ref=e93]:
+                - button "Copy Error Info" [ref=e94] [cursor=pointer]:
+                  - img [ref=e95]
+                - button "No related documentation found" [disabled] [ref=e97]:
+                  - img [ref=e98]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e100] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e101]
+            - generic [ref=e110]: Error parsing package.json file
+          - generic [ref=e112]:
+            - generic [ref=e114]:
+              - img [ref=e116]
+              - generic [ref=e118]: ./package.json (10:5)
+              - button "Open in editor" [ref=e119] [cursor=pointer]:
+                - img [ref=e121]
+            - generic [ref=e124]:
+              - generic [ref=e125]: Error parsing package.json file
+              - generic [ref=e126]: 8 |
+              - text: "\"start\":"
+              - generic [ref=e127]: "\"next start\""
+              - text: ","
+              - generic [ref=e128]: 9 |
+              - text: "\"lint\": \"eslint\", >"
+              - generic [ref=e129]: 10 |
+              - generic [ref=e130]: "{"
+              - generic [ref=e131]: "|"
+              - text: ^
+              - generic [ref=e132]: 11 |
+              - text: "\"scripts\":"
+              - generic [ref=e133]: "{"
+              - generic [ref=e134]: 12 |
+              - text: "\"test\":"
+              - generic [ref=e135]: "\"playwright test\""
+              - text: ","
+              - generic [ref=e136]: 13 |
+              - text: "\"test:headed\":"
+              - generic [ref=e137]: "\"playwright test --headed\""
+              - text: ","
+              - generic [ref=e138]: "package.json is not parseable: invalid JSON: key must be a string at line 10 column 5"
+        - generic [ref=e139]: "1"
+        - generic [ref=e140]: "2"
+    - generic [ref=e145] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e146]:
+        - img [ref=e147]
+      - button "Open issues overlay" [ref=e151]:
+        - generic [ref=e152]:
+          - generic [ref=e153]: "0"
+          - generic [ref=e154]: "1"
+        - generic [ref=e155]: Issue
+  - alert [ref=e156]
+```

@@ -8,6 +8,7 @@ import { useCart } from '@/lib/CartContext'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Image from 'next/image'
+import { useToast } from '@/lib/ToastContext'
 
 export default function CatalogPage() {
     const searchParams = useSearchParams()
@@ -22,6 +23,7 @@ export default function CatalogPage() {
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState(searchQuery || '')
+    const { success } = useToast()
 
     // Update search input when URL search query changes
     useEffect(() => {
@@ -111,7 +113,7 @@ export default function CatalogPage() {
             price: user ? part.customer_price : part.retail_price
         }
         addToCart(cartItem, 1)
-        alert(`${part.name} added to cart!`)
+        success(`${part.name} added to cart!`)
     }
 
     if (loading) {
@@ -137,6 +139,12 @@ export default function CatalogPage() {
                         {/* Header */}
                         <div className="mb-8">
                             <h1 className="text-4xl font-bold mb-2">Browse Parts by Category</h1>
+                            <button 
+                                onClick={() => success('🎉 TEST TOAST WORKS!')}
+                                className="bg-red-500 text-white px-6 py-3 rounded-lg font-bold mb-4"
+                            >
+                                CLICK TO TEST TOAST
+                            </button>
                             <p className="text-gray-600">Select a category to view available parts</p>
                         </div>
 
