@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import AdminProtection from "@/components/AdminProtection"
 
 export default function EditCustomerPage({ params }) {
     const [customerId, setCustomerId] = useState(null)
@@ -73,7 +74,8 @@ export default function EditCustomerPage({ params }) {
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-3xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -192,5 +194,6 @@ export default function EditCustomerPage({ params }) {
                 )}
             </div>
         </main>
+        </AdminProtection>
     )
 }

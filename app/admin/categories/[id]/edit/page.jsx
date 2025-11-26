@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import ImageUpload from '@/components/ImageUpload'
+import AdminProtection from '@/components/AdminProtection'
 
 export default function EditCategoryPage({ params }) {
     const [categoryId, setCategoryId] = useState(null)
@@ -83,7 +84,8 @@ export default function EditCategoryPage({ params }) {
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-3xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -188,5 +190,6 @@ export default function EditCategoryPage({ params }) {
                 )}
             </div>
         </main>
+        </AdminProtection>
     )
 }

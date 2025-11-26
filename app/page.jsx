@@ -32,7 +32,7 @@ export default async function Home() {
                     fill
                     className="object-cover opacity-70"
                     priority
-                    quality={100}
+                    quality={75}
                 />
             </div>
             

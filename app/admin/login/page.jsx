@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
-export default function LoginPage() {
+export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,14 +19,32 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
+    // First, sign in
     const { data, error: signInError } = await signIn(email, password);
 
     if (signInError) {
       setError(signInError.message || "Could not sign in");
-    } else {
-      router.push("/admin");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    // Then, check if user is admin
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('is_admin')
+      .eq('email', email)
+      .single();
+
+    if (!customer || !customer.is_admin) {
+      // Not an admin - sign them out and show error
+      await supabase.auth.signOut();
+      setError("Access denied. Admin privileges required.");
+      setLoading(false);
+      return;
+    }
+
+    // User is admin - force page refresh to update CartContext
+    window.location.href = "/admin";
   };
 
   return (
@@ -77,6 +97,12 @@ export default function LoginPage() {
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link href="/" className="text-sm text-gray-600 hover:text-black">
+            ← Back to Website
+          </Link>
+        </div>
       </div>
     </div>
   );

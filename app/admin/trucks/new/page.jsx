@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import ImageUpload from '@/components/ImageUpload'
+import AdminProtection from "@/components/AdminProtection"
 
 export default function AddTruckPage(){
     const [formData, setFormData] = useState({
@@ -150,7 +151,8 @@ export default function AddTruckPage(){
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-3xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -523,5 +525,6 @@ export default function AddTruckPage(){
                 </form>
             </div>
         </main>
+        </AdminProtection>
     )
 }

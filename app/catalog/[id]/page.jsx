@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react'
 export default function ProductDetailPage({ params }) {
     const [product, setProduct] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [selectedImage, setSelectedImage] = useState(0) // ← NEW: Track which image is selected
     const [formData, setFormData] = useState({
         customer_name: '',
         customer_email: '',
@@ -124,12 +125,13 @@ export default function ProductDetailPage({ params }) {
 
                     {/* Product Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        {/* Left: Image */}
+                        {/* Left: Image Gallery */}
                         <div>
-                            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                                {product.images && product.images[0] ? (
+                            {/* Main Image */}
+                            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-4">
+                                {product.images && product.images.length > 0 ? (
                                     <Image 
-                                        src={product.images[0]} 
+                                        src={product.images[selectedImage]} 
                                         alt={product.name} 
                                         width={800} 
                                         height={600} 
@@ -141,6 +143,30 @@ export default function ProductDetailPage({ params }) {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Thumbnail Gallery - ONLY SHOW IF MULTIPLE IMAGES */}
+                            {product.images && product.images.length > 1 && (
+                                <div className="grid grid-cols-4 gap-2">
+                                    {product.images.map((image, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setSelectedImage(index)}
+                                            className={`relative h-24 bg-white rounded-lg overflow-hidden border-2 transition-all ${
+                                                selectedImage === index 
+                                                    ? 'border-black' 
+                                                    : 'border-gray-200 hover:border-gray-400'
+                                            }`}
+                                        >
+                                            <Image
+                                                src={image}
+                                                alt={`${product.name} - Image ${index + 1}`}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     
                         {/* Right: Details */}
@@ -150,12 +176,27 @@ export default function ProductDetailPage({ params }) {
                                 {product.name}
                             </h1>
 
-                            {/* SKU */}
-                            {product.sku && (
-                                <p className="text-sm text-gray-600 mb-6">
-                                    SKU: {product.sku}
-                                </p>
-                            )}
+                            {/* SKU & Stock Status */}
+                            <div className="flex items-center gap-4 mb-6">
+                                {product.sku && (
+                                    <p className="text-sm text-gray-600">
+                                        SKU: {product.sku}
+                                    </p>
+                                )}
+                                
+                                {/* Stock Status Badge */}
+                                {product.stock_status && (
+                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                                        product.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
+                                        product.stock_status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-red-100 text-red-800'
+                                    }`}>
+                                        {product.stock_status === 'in_stock' ? 'In Stock' :
+                                         product.stock_status === 'low_stock' ? 'Low Stock' :
+                                         'Out of Stock'}
+                                    </span>
+                                )}
+                            </div>
 
                             {/* Description */}
                             {product.description && (
@@ -198,9 +239,10 @@ export default function ProductDetailPage({ params }) {
                                     addToCart(product, 1)
                                     alert('Added to cart!')
                                 }}
-                                className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 mb-8"
+                                disabled={product.stock_status === 'out_of_stock'}
+                                className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 mb-8 disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
-                                Add to Cart
+                                {product.stock_status === 'out_of_stock' ? 'Out of Stock' : 'Add to Cart'}
                             </button>
 
                             {/* Divider */}

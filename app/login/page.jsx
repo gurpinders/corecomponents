@@ -28,23 +28,24 @@ export default function LoginPage() {
         setLoading(true)
         setError('')
 
-        try {
-            const { error } = await supabase.auth.signInWithPassword({
-                email: formData.email,
-                password: formData.password
-            })
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password
+        })
 
-            if (error) throw error
-
-            // Success - force full page reload to refresh user state
-            window.location.href = '/'
-
-        } catch (err) {
-            console.error('Login error:', err)
-            setError(err.message || 'Invalid email or password')
-        } finally {
+        if (signInError) {
+            // Show user-friendly error message
+            if (signInError.message === 'Invalid login credentials') {
+                setError('Invalid email or password. Please try again.')
+            } else {
+                setError(signInError.message)
+            }
             setLoading(false)
+            return
         }
+
+        // Success - force full page reload to refresh user state
+        window.location.href = '/'
     }
 
     return (

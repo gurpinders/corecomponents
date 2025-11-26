@@ -12,25 +12,37 @@ export async function GET(request) {
     const email = searchParams.get("e");
     const partId = searchParams.get("p");
 
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
     if (!campaignId || !email || !partId) {
-      return new Response("Missing parameters", { status: 400 });
+      console.error("Missing parameters:", { campaignId, email, partId });
+      // Still redirect even if tracking fails
+      return Response.redirect(`${baseUrl}/catalog/${partId}`);
     }
 
-    // Track the click
-    await supabase.from("email_tracking").insert([
-      {
-        campaign_id: campaignId,
-        customer_email: email,
-        event_type: "click",
-        part_id: partId,
-      },
-    ]);
+    // Track the click (track every click, not just unique)
+    const { error: insertError } = await supabase
+      .from("email_tracking")
+      .insert([
+        {
+          campaign_id: campaignId,
+          customer_email: email,
+          event_type: "click",
+          part_id: partId,
+        },
+      ]);
 
-    // Redirect to the product page
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    if (insertError) {
+      console.error("Click tracking error:", insertError);
+    } else {
+      console.log("Click tracked:", { campaignId, email, partId });
+    }
+
+    // Always redirect to the product page
     return Response.redirect(`${baseUrl}/catalog/${partId}`);
   } catch (error) {
     console.error("Track click error:", error);
-    return new Response("Error", { status: 500 });
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    return Response.redirect(`${baseUrl}/catalog`);
   }
 }

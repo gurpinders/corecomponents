@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
+import AdminProtection from "@/components/AdminProtection"
 
 export default function AdminCampaignsPage() {
     const [campaigns, setCampaigns] = useState([])
@@ -78,7 +79,8 @@ export default function AdminCampaignsPage() {
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
@@ -203,5 +205,7 @@ export default function AdminCampaignsPage() {
                 )}
             </div>
         </main>
+        </AdminProtection>
+        
     )
 }

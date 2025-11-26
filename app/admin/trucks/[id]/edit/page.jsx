@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import ImageUpload from '@/components/ImageUpload'
+import AdminProtection from "@/components/AdminProtection"
 
 export default function EditTruckPage({ params }){
     const [truckId, setTruckId] = useState(null)
@@ -30,6 +31,9 @@ export default function EditTruckPage({ params }){
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState(null)
+    const [vinLookupLoading, setVinLookupLoading] = useState(false)
+    const [vinLookupSuccess, setVinLookupSuccess] = useState(false)
+    const [vinLookupError, setVinLookupError] = useState(null)
 
     const router = useRouter()
 
@@ -56,6 +60,9 @@ export default function EditTruckPage({ params }){
         }
 
         if (data) {
+            // Clean images array
+            const cleanImages = (data.images || []).filter(url => url && url.trim() !== '')
+            
             // Pre-fill form with existing data
             setFormData({
                 year: data.year || '',
@@ -76,7 +83,7 @@ export default function EditTruckPage({ params }){
                 status: data.status || 'available',
                 images: data.images || ['']
             })
-            setImages(data.images || []);
+            setImages(cleanImages)
         }
         setLoading(false)
     }
@@ -102,10 +109,77 @@ export default function EditTruckPage({ params }){
         }
     }
 
+    const handleVinLookup = async () => {
+        if (formData.vin.length !== 17) {
+            setVinLookupError('VIN must be exactly 17 characters')
+            return
+        }
+
+        setVinLookupLoading(true)
+        setVinLookupError(null)
+        setVinLookupSuccess(false)
+
+        try {
+            const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${formData.vin}?format=json`)
+            const data = await response.json()
+
+            if (data.Results && data.Results[0]) {
+                const result = data.Results[0]
+
+                // Only update fields that have valid data
+                const updates = {}
+                
+                if (result.Make && result.Make !== 'Not Applicable') updates.make = result.Make
+                if (result.Model && result.Model !== 'Not Applicable') updates.model = result.Model
+                if (result.ModelYear && result.ModelYear !== 'Not Applicable') updates.year = result.ModelYear
+                
+                // Engine info
+                if (result.EngineModel || result.DisplacementL || result.FuelTypePrimary) {
+                    const engineParts = []
+                    if (result.EngineModel && result.EngineModel !== 'Not Applicable') engineParts.push(result.EngineModel)
+                    if (result.DisplacementL && result.DisplacementL !== 'Not Applicable') engineParts.push(`${result.DisplacementL}L`)
+                    if (result.FuelTypePrimary && result.FuelTypePrimary !== 'Not Applicable') engineParts.push(result.FuelTypePrimary)
+                    if (engineParts.length > 0) updates.engine = engineParts.join(' ')
+                }
+
+                // Transmission
+                if (result.TransmissionStyle && result.TransmissionStyle !== 'Not Applicable') {
+                    updates.transmission = result.TransmissionStyle
+                }
+
+                // GVW
+                if (result.GVWR && result.GVWR !== 'Not Applicable') {
+                    const gvwMatch = result.GVWR.match(/(\d+)/)
+                    if (gvwMatch) updates.gvw = gvwMatch[1]
+                }
+
+                // Truck Category
+                if (result.BodyCabType && result.BodyCabType !== 'Not Applicable') {
+                    updates.truck_category = result.BodyCabType
+                }
+
+                setFormData({ ...formData, ...updates })
+                setVinLookupSuccess(true)
+                
+                setTimeout(() => setVinLookupSuccess(false), 3000)
+            } else {
+                setVinLookupError('Could not decode VIN. Please enter details manually.')
+            }
+        } catch (error) {
+            console.error('VIN lookup error:', error)
+            setVinLookupError('VIN lookup failed. Please try again.')
+        } finally {
+            setVinLookupLoading(false)
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
         setError(null)
+
+        // Clean images array
+        const cleanImages = images.filter(url => url && url.trim() !== '')
 
         // Convert string numbers to actual numbers
         const truckData = {
@@ -115,7 +189,7 @@ export default function EditTruckPage({ params }){
             gvw: parseInt(formData.gvw),
             retail_price: parseFloat(formData.retail_price),
             customer_price: parseFloat(formData.customer_price),
-            images: images
+            images: cleanImages
         }
 
         const { error } = await supabase
@@ -137,34 +211,39 @@ export default function EditTruckPage({ params }){
 
     if (loading) {
         return (
-            <main className="min-h-screen bg-gray-50 py-8">
-                <div className="max-w-3xl mx-auto px-6">
-                    <p className="text-center py-12">Loading truck data...</p>
-                </div>
-            </main>
+            <AdminProtection>
+                <main className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-3xl mx-auto px-6">
+                        <p className="text-center py-12">Loading truck data...</p>
+                    </div>
+                </main>
+            </AdminProtection>
         )
     }
 
     if (error && !formData.make) {
         return (
-            <main className="min-h-screen bg-gray-50 py-8">
-                <div className="max-w-3xl mx-auto px-6">
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        Error: {error}
+            <AdminProtection>
+                <main className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-3xl mx-auto px-6">
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            Error: {error}
+                        </div>
+                        <button
+                            onClick={() => router.push('/admin/trucks')}
+                            className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-300"
+                        >
+                            Back to Trucks
+                        </button>
                     </div>
-                    <button
-                        onClick={() => router.push('/admin/trucks')}
-                        className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-300"
-                    >
-                        Back to Trucks
-                    </button>
-                </div>
-            </main>
+                </main>
+            </AdminProtection>
         )
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-3xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -255,20 +334,37 @@ export default function EditTruckPage({ params }){
                                 />
                             </div>
 
-                            {/* VIN */}
+                            {/* VIN with Lookup */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     VIN *
                                 </label>
-                                <input
-                                    type="text"
-                                    name="vin"
-                                    value={formData.vin}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                                    placeholder="1FUJGHDV8CLHXXXXXX"
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        name="vin"
+                                        value={formData.vin}
+                                        onChange={handleChange}
+                                        required
+                                        maxLength={17}
+                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                                        placeholder="1FUJGHDV8CLHXXXXXX"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleVinLookup}
+                                        disabled={vinLookupLoading || formData.vin.length !== 17}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap"
+                                    >
+                                        {vinLookupLoading ? 'Looking up...' : 'Lookup VIN'}
+                                    </button>
+                                </div>
+                                {vinLookupSuccess && (
+                                    <p className="text-sm text-green-600 mt-1">✓ VIN lookup successful!</p>
+                                )}
+                                {vinLookupError && (
+                                    <p className="text-sm text-red-600 mt-1">{vinLookupError}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -511,5 +607,7 @@ export default function EditTruckPage({ params }){
                 </form>
             </div>
         </main>
+        </AdminProtection>
+
     )
 }

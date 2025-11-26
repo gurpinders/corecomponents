@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ImageUpload from '@/components/ImageUpload'
+import AdminProtection from '@/components/AdminProtection'
+
 
 export default function EditPartPage({ params }){
     const [partId, setPartId] = useState(null);
@@ -29,9 +31,13 @@ export default function EditPartPage({ params }){
             setError(error.message);
             setLoading(false);
             return;
-        } 
+        }
+        
+        // Clean the images array - remove empty strings and nulls
+        const cleanImages = (data.images || []).filter(url => url && url.trim() !== '');
+        
         setFormData(data);
-        setImages(data.images || []);
+        setImages(cleanImages);
         setLoading(false);
     }
 
@@ -65,6 +71,9 @@ export default function EditPartPage({ params }){
         setLoading(true)
         setError(null)
 
+        // Clean images array before saving
+        const cleanImages = images.filter(url => url && url.trim() !== '')
+
         const { error } = await supabase
         .from('parts')
         .update({
@@ -75,7 +84,7 @@ export default function EditPartPage({ params }){
             category_id: formData.category_id,
             stock_status: formData.stock_status,
             featured: formData.featured,
-            images: images
+            images: cleanImages  // ← Use cleaned array
         })
         .eq('id', partId)
 
@@ -91,7 +100,8 @@ export default function EditPartPage({ params }){
     }
 
     return(
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-3xl mx-auto px-6">
                 <h1 className="text-3xl font-bold">Edit Part</h1>
                 <p>Update the details for this part</p>
@@ -237,5 +247,6 @@ export default function EditPartPage({ params }){
 
             
         </main>
+        </AdminProtection>
     )
 }

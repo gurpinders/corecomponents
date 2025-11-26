@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
+import AdminProtection from "@/components/AdminProtection"
+
 
 export default function AdminCustomersPage(){
     const [customers, setCustomers] = useState([])
@@ -43,7 +45,8 @@ export default function AdminCustomersPage(){
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
@@ -147,5 +150,6 @@ export default function AdminCustomersPage(){
                 )}
             </div>
         </main>
+        </AdminProtection>
     )
 }

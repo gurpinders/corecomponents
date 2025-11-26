@@ -11,7 +11,7 @@ export default function Header(){
     const router = useRouter()
     const { getCartCount, user, checkUser } = useCart()
     const cartCount = getCartCount()
-    
+
     const [categories, setCategories] = useState([])
     const [partsDropdownOpen, setPartsDropdownOpen] = useState(false)
     const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false)
@@ -52,6 +52,7 @@ export default function Header(){
                             width={1600} 
                             height={900} 
                             className='h-24 w-auto'
+                            priority
                         />
                     </Link>
 
@@ -149,14 +150,15 @@ export default function Header(){
                                     setServicesTimeout(timeout)
                                 }}
                             >
-                                <button 
+                                <Link
+                                    href="/services"
                                     className="text-gray-600 hover:text-black font-semibold text-lg transition-colors flex items-center gap-1"
                                 >
                                     Services
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
-                                </button>
+                                </Link>
                                 
                                 {/* Services Dropdown Menu */}
                                 {servicesDropdownOpen && (

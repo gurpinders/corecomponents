@@ -23,13 +23,19 @@ export default function CatalogPage() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState(searchQuery || '')
 
+    // Update search input when URL search query changes
+    useEffect(() => {
+        setSearch(searchQuery || '')
+    }, [searchQuery])
+
+    // Fetch data when category or search changes
     useEffect(() => {
         if (categoryId) {
             fetchCategoryAndParts()
         } else {
             fetchCategories()
         }
-    }, [categoryId])
+    }, [categoryId, searchQuery]) // ← ADDED searchQuery here!
 
     const fetchCategories = async () => {
         const { data } = await supabase
@@ -44,6 +50,8 @@ export default function CatalogPage() {
     }
 
     const fetchCategoryAndParts = async () => {
+        setLoading(true)
+
         // Fetch selected category
         const { data: categoryData } = await supabase
             .from('categories')
@@ -55,30 +63,46 @@ export default function CatalogPage() {
             setSelectedCategory(categoryData)
         }
 
-        // Fetch parts in this category
-        let query = supabase
+        // Fetch ALL parts in this category first
+        const { data: allParts } = await supabase
             .from('parts')
-            .select('*')  // Back to selecting all fields
+            .select('*')
             .eq('category_id', categoryId)
             .order('name')
 
-        if (searchQuery) {
-            query = query.ilike('name', `%${searchQuery}%`)
+        // If there's a search query, filter client-side
+        if (searchQuery && searchQuery.trim() && allParts) {
+            const searchLower = searchQuery.toLowerCase().trim()
+            const filteredParts = allParts.filter(part => {
+                return (
+                    part.name?.toLowerCase().includes(searchLower) ||
+                    part.description?.toLowerCase().includes(searchLower) ||
+                    part.sku?.toLowerCase().includes(searchLower)
+                )
+            })
+            setParts(filteredParts)
+        } else {
+            setParts(allParts || [])
         }
 
-        const { data: partsData } = await query
-
-        if (partsData) {
-            setParts(partsData)
-        }
         setLoading(false)
     }
 
     const handleSearch = (e) => {
         e.preventDefault()
-        if (categoryId && search) {
-            router.push(`/catalog?category=${categoryId}&search=${search}`)
+        if (categoryId) {
+            if (search.trim()) {
+                router.push(`/catalog?category=${categoryId}&search=${encodeURIComponent(search)}`)
+            } else {
+                // If search is empty, remove search param
+                router.push(`/catalog?category=${categoryId}`)
+            }
         }
+    }
+
+    const handleClearSearch = () => {
+        setSearch('')
+        router.push(`/catalog?category=${categoryId}`)
     }
 
     const handleAddToCart = (part) => {
@@ -116,7 +140,7 @@ export default function CatalogPage() {
                             <p className="text-gray-600">Select a category to view available parts</p>
                         </div>
 
-                        {/* Category Grid - OPTION 1 DESIGN */}
+                        {/* Category Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {categories.map((category) => (
                                 <Link
@@ -213,27 +237,62 @@ export default function CatalogPage() {
                             />
                             <button
                                 type="submit"
-                                className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800"
+                                className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 whitespace-nowrap"
                             >
                                 Search
                             </button>
+                            {(search || searchQuery) && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearSearch}
+                                    className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-300 whitespace-nowrap"
+                                >
+                                    Clear
+                                </button>
+                            )}
                         </div>
                     </form>
 
+                    {/* Search Results Info */}
+                    {searchQuery && (
+                        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p className="text-blue-800">
+                                Searching for: <span className="font-bold">"{searchQuery}"</span>
+                                {' '}- Found {parts.length} {parts.length === 1 ? 'result' : 'results'}
+                            </p>
+                        </div>
+                    )}
+
                     {/* Parts Count */}
-                    <div className="mb-6">
-                        <p className="text-gray-600">
-                            {parts.length} {parts.length === 1 ? 'part' : 'parts'} found
-                        </p>
-                    </div>
+                    {!searchQuery && (
+                        <div className="mb-6">
+                            <p className="text-gray-600">
+                                {parts.length} {parts.length === 1 ? 'part' : 'parts'} found
+                            </p>
+                        </div>
+                    )}
 
                     {/* Parts Grid */}
                     {parts.length === 0 ? (
                         <div className="text-center py-12">
-                            <p className="text-xl text-gray-500 mb-4">No parts found in this category</p>
+                            {searchQuery ? (
+                                <>
+                                    <p className="text-xl text-gray-500 mb-4">
+                                        No parts found matching "{searchQuery}"
+                                    </p>
+                                    <button
+                                        onClick={handleClearSearch}
+                                        className="inline-block bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 mr-4"
+                                    >
+                                        Clear Search
+                                    </button>
+                                </>
+                            ) : (
+                                <p className="text-xl text-gray-500 mb-4">No parts found in this category</p>
+                            )}
                             <Link
                                 href="/catalog"
-                                className="inline-block bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800"
+                                className="inline-block bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-300"
                             >
                                 ← Back to Categories
                             </Link>

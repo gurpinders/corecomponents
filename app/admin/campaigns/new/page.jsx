@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Image from "next/image"
+import AdminProtection from "@/components/AdminProtection"
 
 export default function NewCampaignPage() {
     const [formData, setFormData] = useState({
@@ -95,7 +96,8 @@ export default function NewCampaignPage() {
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -234,5 +236,6 @@ export default function NewCampaignPage() {
                 </form>
             </div>
         </main>
+        </AdminProtection>
     )
 }

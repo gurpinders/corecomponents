@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import AdminProtection from '@/components/AdminProtection'
 
 export default function AdminOrderDetailPage({ params }) {
     const [orderId, setOrderId] = useState(null)
@@ -79,7 +80,8 @@ export default function AdminOrderDetailPage({ params }) {
     }
 
     return (
-        <main className="max-w-7xl mx-auto px-6 py-8">
+        <AdminProtection>
+            <main className="max-w-7xl mx-auto px-6 py-8">
             {/* Header */}
             <div className="mb-8">
                 <Link href="/admin/orders" className="text-blue-600 hover:underline mb-4 inline-block">
@@ -213,5 +215,6 @@ export default function AdminOrderDetailPage({ params }) {
                 </div>
             </div>
         </main>
+        </AdminProtection>
     )
 }

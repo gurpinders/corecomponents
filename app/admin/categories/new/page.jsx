@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import ImageUpload from '@/components/ImageUpload'
+import AdminProtection from "@/components/AdminProtection"
 
 export default function AddCategoryPage() {
     const [formData, setFormData] = useState({
@@ -51,7 +52,8 @@ export default function AddCategoryPage() {
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-3xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -149,5 +151,6 @@ export default function AddCategoryPage() {
                 </form>
             </div>
         </main>
+        </AdminProtection>
     )
 }

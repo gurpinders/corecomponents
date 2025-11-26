@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react'
 export default function TruckDetailPage({ params }) {
     const [truck, setTruck] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [selectedImage, setSelectedImage] = useState(0) // ← NEW: Track selected image
     const [formData, setFormData] = useState({
         customer_name: '',
         customer_email: '',
@@ -128,12 +129,13 @@ Customer Message: ${formData.message}`,
 
                     {/* Truck Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        {/* Left: Image */}
+                        {/* Left: Image Gallery */}
                         <div>
-                            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                                {truck.images && truck.images[0] ? (
+                            {/* Main Image */}
+                            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-4">
+                                {truck.images && truck.images.length > 0 ? (
                                     <Image 
-                                        src={truck.images[0]} 
+                                        src={truck.images[selectedImage]} 
                                         alt={`${truck.year} ${truck.make} ${truck.model}`}
                                         width={800} 
                                         height={600} 
@@ -145,6 +147,30 @@ Customer Message: ${formData.message}`,
                                     </div>
                                 )}
                             </div>
+
+                            {/* Thumbnail Gallery - ONLY SHOW IF MULTIPLE IMAGES */}
+                            {truck.images && truck.images.length > 1 && (
+                                <div className="grid grid-cols-4 gap-2">
+                                    {truck.images.map((image, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setSelectedImage(index)}
+                                            className={`relative h-24 bg-white rounded-lg overflow-hidden border-2 transition-all ${
+                                                selectedImage === index 
+                                                    ? 'border-black' 
+                                                    : 'border-gray-200 hover:border-gray-400'
+                                            }`}
+                                        >
+                                            <Image
+                                                src={image}
+                                                alt={`${truck.year} ${truck.make} ${truck.model} - Image ${index + 1}`}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     
                         {/* Right: Details */}

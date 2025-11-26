@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import AdminProtection from '@/components/AdminProtection'
 
 export default function AdminDashboard() {
     const [loading, setLoading] = useState(true)
@@ -267,7 +268,8 @@ export default function AdminDashboard() {
         : 0
 
     return (
-        <main className="max-w-7xl mx-auto px-6 py-8">
+        <AdminProtection>
+            <main className="max-w-7xl mx-auto px-6 py-8">
             {/* Welcome Section */}
             <div className="mb-8">
                 <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
@@ -612,5 +614,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
         </main>
+        </AdminProtection>
+        
     )
 }

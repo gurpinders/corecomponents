@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import AdminProtection from "@/components/AdminProtection"
 
 export default function AddCustomerPage(){
     const [formData, setFormData] = useState({
@@ -44,7 +45,8 @@ export default function AddCustomerPage(){
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-3xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -156,5 +158,7 @@ export default function AddCustomerPage(){
                 </form>
             </div>
         </main>
+        </AdminProtection>
+        
     )
 }

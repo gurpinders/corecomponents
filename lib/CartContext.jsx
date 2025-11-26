@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react'
 import { getUser } from './auth'
+import { supabase } from './supabase'
 
 // Create the Context (shared backpack)
 const CartContext = createContext()
@@ -28,10 +29,26 @@ export function CartProvider({ children }) {
         checkUser()
     }, [])
 
-    // Check authentication status
+    // Check authentication status AND admin status
     const checkUser = async () => {
-        const { user } = await getUser()
-        setUser(user)
+        const { user: authUser } = await getUser()
+        
+        if (authUser) {
+            // Fetch customer data including is_admin
+            const { data: customer } = await supabase
+                .from('customers')
+                .select('email, name, is_admin')
+                .eq('email', authUser.email)
+                .single()
+            
+            // Merge auth user with customer data
+            setUser({
+                ...authUser,
+                is_admin: customer?.is_admin || false
+            })
+        } else {
+            setUser(null)
+        }
     }
 
     // Save cart to localStorage whenever it changes

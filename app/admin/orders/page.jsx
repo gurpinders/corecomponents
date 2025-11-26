@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import AdminProtection from '@/components/AdminProtection'
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState([])
@@ -68,7 +69,8 @@ export default function AdminOrdersPage() {
     }
 
     return (
-        <main className="max-w-7xl mx-auto px-6 py-8">
+        <AdminProtection>
+            <main className="max-w-7xl mx-auto px-6 py-8">
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold">Orders</h1>
@@ -197,5 +199,6 @@ export default function AdminOrdersPage() {
                 </div>
             )}
         </main>
+        </AdminProtection>
     )
 }

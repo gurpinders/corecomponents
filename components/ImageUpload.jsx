@@ -71,23 +71,41 @@ export default function ImageUpload({ images, onImagesChange }) {
   }
 
   // Remove an image
-  const handleRemoveImage = async (urlToRemove) => {
+  const handleRemoveImage = async (urlToRemove, index) => {
+    // Confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to remove this image?\n\nThis action cannot be undone.`
+    )
+    
+    if (!confirmed) return
+
     try {
       // Extract filename from URL
-      const url = new URL(urlToRemove)
-      const filePath = url.pathname.split('/').pop()
+      // URL format: https://xxx.supabase.co/storage/v1/object/public/product-images/filename.jpg
+      const urlParts = urlToRemove.split('/')
+      const fileName = urlParts[urlParts.length - 1]
 
       // Delete from Supabase Storage
-      await supabase.storage
+      const { error: deleteError } = await supabase.storage
         .from('product-images')
-        .remove([filePath])
+        .remove([fileName])
 
-      // Remove from state
-      onImagesChange(images.filter(url => url !== urlToRemove))
+      if (deleteError) {
+        console.error('Storage delete error:', deleteError)
+        // Continue anyway - the file might already be deleted
+      }
+
+      // Remove from state (always do this even if storage delete fails)
+      const newImages = images.filter(url => url !== urlToRemove)
+      onImagesChange(newImages)
+      
+      // Show success message
+      setError(null)
+      alert('Image removed successfully!')
       
     } catch (err) {
       console.error('Delete error:', err)
-      setError('Failed to remove image')
+      setError('Failed to remove image. Try again or refresh the page.')
     }
   }
 
@@ -117,6 +135,12 @@ export default function ImageUpload({ images, onImagesChange }) {
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           {error}
+          <button 
+            onClick={() => setError(null)}
+            className="ml-2 text-red-900 font-bold"
+          >
+            ×
+          </button>
         </div>
       )}
 
@@ -128,11 +152,13 @@ export default function ImageUpload({ images, onImagesChange }) {
       )}
 
       {/* Image Previews */}
-      {images.length > 0 && (
+      {images.filter(url => url && url.trim() !== '').length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {images.map((url, index) => (
+          {images
+            .filter(url => url && url.trim() !== '')
+            .map((url, index) => (
             <div key={index} className="relative group">
-              <div className="relative w-full h-40 border rounded-lg overflow-hidden">
+              <div className="relative w-full h-40 border rounded-lg overflow-hidden bg-gray-100">
                 <Image
                   src={url}
                   alt={`Product image ${index + 1}`}
@@ -141,18 +167,30 @@ export default function ImageUpload({ images, onImagesChange }) {
                 />
               </div>
               
-              {/* Remove Button */}
+              {/* Remove Button - Always visible on mobile, hover on desktop */}
               <button
                 type="button"
-                onClick={() => handleRemoveImage(url)}
-                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => handleRemoveImage(url, index)}
+                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors md:opacity-0 md:group-hover:opacity-100"
+                title="Remove image"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+
+              {/* Image number badge */}
+              <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                #{index + 1}
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {images.length === 0 && (
+        <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+          <p className="text-gray-500">No images uploaded yet</p>
         </div>
       )}
     </div>

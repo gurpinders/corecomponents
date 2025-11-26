@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import AdminProtection from "@/components/AdminProtection"
 
 export default function AdminQuotesPage(){
     const [quotes, setQuotes] = useState([])
@@ -43,7 +44,8 @@ export default function AdminQuotesPage(){
     }
 
     return(
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-6">
                 <h1 className="text-3xl font-bold mb-8">Quote Requests</h1>
                 {loading && (
@@ -139,5 +141,6 @@ export default function AdminQuotesPage(){
                 )}
             </div>
         </main>
+        </AdminProtection>
     )
 }

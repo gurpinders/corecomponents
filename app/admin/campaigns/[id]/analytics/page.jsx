@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
+import AdminProtection from "@/components/AdminProtection"
 
 export default function CampaignAnalyticsPage({ params }) {
     const [campaignId, setCampaignId] = useState(null)
@@ -15,6 +16,7 @@ export default function CampaignAnalyticsPage({ params }) {
         uniqueClicks: 0,
         openRate: 0,
         clickRate: 0,
+        clickThroughRate: 0,
         topProducts: []
     })
     const [loading, setLoading] = useState(true)
@@ -30,7 +32,7 @@ export default function CampaignAnalyticsPage({ params }) {
             await fetchAnalytics(id)
         }
         loadData()
-    }, [])
+    }, [params])
 
     const fetchCampaign = async (id) => {
         const { data, error } = await supabase
@@ -87,16 +89,27 @@ export default function CampaignAnalyticsPage({ params }) {
             .sort((a, b) => b.clicks - a.clicks)
             .slice(0, 5)
 
+        const recipients = campaign?.recipients || 0
+        const uniqueOpens = uniqueOpensSet.size
+        const uniqueClicks = uniqueClicksSet.size
+
         setAnalytics({
             totalOpens: opens.length,
             totalClicks: clicks.length,
-            uniqueOpens: uniqueOpensSet.size,
-            uniqueClicks: uniqueClicksSet.size,
-            openRate: campaign?.recipients > 0 
-                ? ((uniqueOpensSet.size / campaign.recipients) * 100).toFixed(1)
+            uniqueOpens: uniqueOpens,
+            uniqueClicks: uniqueClicks,
+            // Open rate = unique opens / recipients
+            openRate: recipients > 0 
+                ? ((uniqueOpens / recipients) * 100).toFixed(1)
                 : 0,
-            clickRate: campaign?.recipients > 0
-                ? ((uniqueClicksSet.size / campaign.recipients) * 100).toFixed(1): 0,
+            // Click rate = unique clicks / recipients
+            clickRate: recipients > 0
+                ? ((uniqueClicks / recipients) * 100).toFixed(1)
+                : 0,
+            // Click-through rate = unique clicks / unique opens
+            clickThroughRate: uniqueOpens > 0
+                ? ((uniqueClicks / uniqueOpens) * 100).toFixed(1)
+                : 0,
             topProducts
         })
 
@@ -105,28 +118,33 @@ export default function CampaignAnalyticsPage({ params }) {
 
     if (loading) {
         return (
-            <main className="min-h-screen bg-gray-50 py-8">
-                <div className="max-w-7xl mx-auto px-6">
-                    <p className="text-center py-8 text-gray-500">Loading analytics...</p>
-                </div>
-            </main>
+            <AdminProtection>
+                <main className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <p className="text-center py-8 text-gray-500">Loading analytics...</p>
+                    </div>
+                </main>
+            </AdminProtection>
         )
     }
 
     if (error || !campaign) {
         return (
-            <main className="min-h-screen bg-gray-50 py-8">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        Error: {error || 'Campaign not found'}
+            <AdminProtection>
+                <main className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            Error: {error || 'Campaign not found'}
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </AdminProtection>
         )
     }
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="mb-8">
@@ -167,7 +185,7 @@ export default function CampaignAnalyticsPage({ params }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <div className="bg-white rounded-lg shadow p-6">
                         <p className="text-sm text-gray-500 mb-1">Unique Opens</p>
-                        <p className="text-3xl font-bold">{analytics.uniqueOpens}</p>
+                        <p className="text-3xl font-bold text-blue-600">{analytics.uniqueOpens}</p>
                         <p className="text-sm text-gray-500 mt-1">
                             {analytics.totalOpens} total opens
                         </p>
@@ -175,7 +193,7 @@ export default function CampaignAnalyticsPage({ params }) {
 
                     <div className="bg-white rounded-lg shadow p-6">
                         <p className="text-sm text-gray-500 mb-1">Open Rate</p>
-                        <p className="text-3xl font-bold">{analytics.openRate}%</p>
+                        <p className="text-3xl font-bold text-green-600">{analytics.openRate}%</p>
                         <p className="text-sm text-gray-500 mt-1">
                             of {campaign.recipients} recipients
                         </p>
@@ -183,18 +201,47 @@ export default function CampaignAnalyticsPage({ params }) {
 
                     <div className="bg-white rounded-lg shadow p-6">
                         <p className="text-sm text-gray-500 mb-1">Unique Clicks</p>
-                        <p className="text-3xl font-bold">{analytics.uniqueClicks}</p>
+                        <p className="text-3xl font-bold text-purple-600">{analytics.uniqueClicks}</p>
                         <p className="text-sm text-gray-500 mt-1">
                             {analytics.totalClicks} total clicks
                         </p>
                     </div>
 
                     <div className="bg-white rounded-lg shadow p-6">
-                        <p className="text-sm text-gray-500 mb-1">Click Rate</p>
-                        <p className="text-3xl font-bold">{analytics.clickRate}%</p>
+                        <p className="text-sm text-gray-500 mb-1">Click-Through Rate</p>
+                        <p className="text-3xl font-bold text-orange-600">{analytics.clickThroughRate}%</p>
                         <p className="text-sm text-gray-500 mt-1">
                             of unique opens
                         </p>
+                    </div>
+                </div>
+
+                {/* Additional Metrics Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="bg-white rounded-lg shadow p-6">
+                        <p className="text-sm text-gray-500 mb-1">Click Rate</p>
+                        <p className="text-3xl font-bold">{analytics.clickRate}%</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            of all recipients clicked
+                        </p>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow p-6">
+                        <p className="text-sm text-gray-500 mb-1">Engagement Summary</p>
+                        <div className="mt-2 space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span>Delivered:</span>
+                                <span className="font-medium">{campaign.recipients}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span>Opened:</span>
+                                <span className="font-medium">{analytics.uniqueOpens}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span>Clicked:</span>
+                                <span className="font-medium">{analytics.uniqueClicks}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -221,15 +268,18 @@ export default function CampaignAnalyticsPage({ params }) {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                                    <div className="text-right w-32">
+                                        <div className="w-full bg-gray-200 rounded-full h-2">
                                             <div 
                                                 className="bg-black h-2 rounded-full"
                                                 style={{
-                                                    width: `${(product.clicks / analytics.totalClicks * 100)}%`
+                                                    width: `${Math.min((product.clicks / analytics.totalClicks * 100), 100)}%`
                                                 }}
                                             ></div>
                                         </div>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            {((product.clicks / analytics.totalClicks) * 100).toFixed(0)}%
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -238,5 +288,6 @@ export default function CampaignAnalyticsPage({ params }) {
                 </div>
             </div>
         </main>
+        </AdminProtection>
     )
 }

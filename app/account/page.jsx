@@ -17,6 +17,7 @@ export default function AccountPage() {
     const [orderItems, setOrderItems] = useState({})
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [authLoading, setAuthLoading] = useState(true) // ← NEW: Track auth loading
     const [editing, setEditing] = useState(false)
     const [saving, setSaving] = useState(false)
     const [editForm, setEditForm] = useState({
@@ -29,13 +30,26 @@ export default function AccountPage() {
         postal_code: ''
     })
 
+    // ← NEW: Separate effect to check auth state
     useEffect(() => {
-        if (!user) {
-            router.push('/login')
-            return
+        const checkAuth = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            setAuthLoading(false)
+            
+            if (!session) {
+                router.push('/login')
+            }
         }
-        fetchCustomerData()
-    }, [user])
+        
+        checkAuth()
+    }, [])
+
+    // ← MODIFIED: Only fetch data when we have a user
+    useEffect(() => {
+        if (user && !authLoading) {
+            fetchCustomerData()
+        }
+    }, [user, authLoading])
 
     const fetchCustomerData = async () => {
         // Fetch customer info
@@ -109,7 +123,8 @@ export default function AccountPage() {
         setSaving(false)
     }
 
-    if (loading) {
+    // ← NEW: Show loading while checking auth
+    if (authLoading || loading) {
         return (
             <div>
                 <Header />

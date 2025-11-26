@@ -249,6 +249,11 @@ export default function TrucksPage(){
                                         <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 capitalize">
                                             {truck.condition}
                                         </span>
+
+                                        {/* View Details Button */}
+                                        <button className="w-full bg-black text-white py-2 px-4 rounded-lg font-bold hover:bg-gray-800 transition-colors mt-4">
+                                            View Details →
+                                        </button>
                                     </div>
                                 </div>
                             </Link>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Image from "next/image";
+import AdminProtection from "@/components/AdminProtection";
 
 export default function AdminTrucksPage(){
     const [trucks, setTrucks] = useState([]);
@@ -14,7 +15,10 @@ export default function AdminTrucksPage(){
     const router = useRouter();
 
     const fetchTrucks = async() => {
-        const { data, error } = await supabase.from('trucks').select('*').order('created_at', { ascending: false })
+        const { data, error } = await supabase
+            .from('trucks')
+            .select('*')
+            .order('created_at', { ascending: false })
 
         if (error) {
             setError(error.message)
@@ -26,25 +30,30 @@ export default function AdminTrucksPage(){
         setLoading(false)
     }
 
-    const handleDelete = async (truckId) => {
-        if (!confirm('Are you sure you want to delete this truck?')) return
+    const handleDelete = async (truckId, truckName) => {
+        const confirmed = window.confirm(
+            `Are you sure you want to delete "${truckName}"?\n\nThis action cannot be undone.`
+        )
+        
+        if (!confirmed) return
         
         const { error } = await supabase.from('trucks').delete().eq('id', truckId)
         
         if (error) {
             alert('Error deleting truck: ' + error.message)
         } else {
+            alert('Truck deleted successfully!')
             fetchTrucks() // Refresh the list
         }
     }
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchTrucks();
     }, [])
 
     return (
-        <main className="min-h-screen bg-gray-50 py-8">
+        <AdminProtection>
+            <main className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
@@ -92,7 +101,7 @@ export default function AdminTrucksPage(){
                                         Type
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Retail Price
+                                        Prices
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
@@ -120,12 +129,16 @@ export default function AdminTrucksPage(){
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="font-medium text-gray-900">{`${truck.year} ${truck.make} ${truck.model}`}</div>
+                                            <div className="text-sm text-gray-500">{truck.mileage?.toLocaleString()} miles</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {truck.truck_category || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            ${truck.retail_price}
+                                            <div className="text-sm">
+                                                <div className="text-gray-500">Retail: ${truck.retail_price?.toLocaleString() || '0'}</div>
+                                                <div className="text-green-600 font-medium">Customer: ${truck.customer_price?.toLocaleString() || '0'}</div>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -133,7 +146,9 @@ export default function AdminTrucksPage(){
                                                 truck.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                                 'bg-red-100 text-red-800'
                                             }`}>
-                                                {truck.status.replace('_', ' ')}
+                                                {truck.status === 'available' ? 'Available' :
+                                                 truck.status === 'pending' ? 'Pending' :
+                                                 'Sold'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -144,7 +159,7 @@ export default function AdminTrucksPage(){
                                                 Edit
                                             </Link>
                                             <button
-                                                onClick={() => handleDelete(truck.id)}
+                                                onClick={() => handleDelete(truck.id, `${truck.year} ${truck.make} ${truck.model}`)}
                                                 className="text-red-600 hover:text-red-900"
                                             >
                                                 Delete
@@ -158,5 +173,6 @@ export default function AdminTrucksPage(){
                 )}
             </div>
         </main>
+        </AdminProtection>
     )
 }

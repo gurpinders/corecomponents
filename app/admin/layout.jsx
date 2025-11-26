@@ -100,6 +100,16 @@ export default function AdminLayout({ children }) {
                             Parts
                         </Link>
                         <Link 
+                            href="/admin/trucks" 
+                            className={`pb-2 ${
+                                pathname.startsWith('/admin/trucks')
+                                    ? 'font-medium text-black border-b-2 border-black' 
+                                    : 'text-gray-600 hover:text-black'
+                            }`}
+                        >
+                            Trucks
+                        </Link>
+                        <Link 
                             href="/admin/customers" 
                             className={`pb-2 ${
                                 pathname.startsWith('/admin/customers')
