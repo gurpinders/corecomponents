@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
     const searchParams = useSearchParams()
     const orderId = searchParams.get('order')
     
@@ -211,5 +211,22 @@ export default function OrderConfirmationPage() {
             </main>
             <Footer />
         </div>
+    )
+}
+
+// Suspense wrapper for deployment
+export default function OrderConfirmationPage() {
+    return (
+        <Suspense fallback={
+            <div>
+                <Header />
+                <main className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+                    <p className="text-xl text-gray-600">Loading...</p>
+                </main>
+                <Footer />
+            </div>
+        }>
+            <OrderConfirmationContent />
+        </Suspense>
     )
 }
