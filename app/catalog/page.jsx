@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -10,7 +10,7 @@ import Footer from '@/components/Footer'
 import Image from 'next/image'
 import { useToast } from '@/lib/ToastContext'
 
-export default function CatalogPage() {
+function CatalogContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const { user, addToCart } = useCart()
@@ -37,7 +37,7 @@ export default function CatalogPage() {
         } else {
             fetchCategories()
         }
-    }, [categoryId, searchQuery]) // ← ADDED searchQuery here!
+    }, [categoryId, searchQuery])
 
     const fetchCategories = async () => {
         const { data } = await supabase
@@ -130,7 +130,6 @@ export default function CatalogPage() {
 
     // CATEGORY GRID VIEW
     if (!categoryId) {
-        
         return (
             <div>
                 <Header />
@@ -139,12 +138,6 @@ export default function CatalogPage() {
                         {/* Header */}
                         <div className="mb-8">
                             <h1 className="text-4xl font-bold mb-2">Browse Parts by Category</h1>
-                            <button 
-                                onClick={() => success('🎉 TEST TOAST WORKS!')}
-                                className="bg-red-500 text-white px-6 py-3 rounded-lg font-bold mb-4"
-                            >
-                                CLICK TO TEST TOAST
-                            </button>
                             <p className="text-gray-600">Select a category to view available parts</p>
                         </div>
 
@@ -395,5 +388,22 @@ export default function CatalogPage() {
             </main>
             <Footer />
         </div>
+    )
+}
+
+// Suspense wrapper for deployment
+export default function CatalogPage() {
+    return (
+        <Suspense fallback={
+            <div>
+                <Header />
+                <main className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+                    <p className="text-xl text-gray-600">Loading...</p>
+                </main>
+                <Footer />
+            </div>
+        }>
+            <CatalogContent />
+        </Suspense>
     )
 }
