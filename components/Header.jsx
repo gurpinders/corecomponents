@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase'
 
 export default function Header(){
     const router = useRouter()
-    const { getCartCount, user, checkUser } = useCart()
+    const { getCartCount, user, checkUser, clearCart } = useCart()
     const cartCount = getCartCount()
 
     const [categories, setCategories] = useState([])
@@ -35,6 +35,7 @@ export default function Header(){
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
+        clearCart() 
         checkUser()
         window.location.href = '/'
     }
