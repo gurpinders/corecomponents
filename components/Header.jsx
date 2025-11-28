@@ -322,13 +322,23 @@ export default function Header(){
                 )}
             </div>
 
-            {/* Promotional Bar */}
-            <div className="bg-black text-white py-2 text-center text-sm">
-                <span className="font-medium">📞 Call Us: 647-993-8235</span>
-                <span className="mx-4">|</span>
-                <span>🚚 Free Delivery in GTA</span>
-                <span className="mx-4">|</span>
-                <span>✨ Save 5% as a Registered Customer</span>
+            {/* Promotional Bar - BIGGER & NAVY BLUE */}
+            <div className="bg-[#001f54] text-white py-4 text-center">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-8">
+                        <span className="font-bold text-lg flex items-center gap-2">
+                            📞 <span>Call Us: 647-993-8235</span>
+                        </span>
+                        <span className="hidden md:block text-white/50">|</span>
+                        <span className="font-semibold text-base flex items-center gap-2">
+                            🚚 <span>Free Delivery in GTA</span>
+                        </span>
+                        <span className="hidden md:block text-white/50">|</span>
+                        <span className="font-semibold text-base flex items-center gap-2">
+                            ✨ <span>Save 5% as a Registered Customer</span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </header>
     )
