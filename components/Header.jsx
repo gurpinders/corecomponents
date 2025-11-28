@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase'
 
 export default function Header(){
     const router = useRouter()
-    const { getCartCount, user, checkUser, clearCart } = useCart()
+    const { getCartCount, user, checkUser, clearCart, cart } = useCart()
     const cartCount = getCartCount()
 
     const [categories, setCategories] = useState([])
@@ -18,9 +18,20 @@ export default function Header(){
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [partsTimeout, setPartsTimeout] = useState(null)
     const [servicesTimeout, setServicesTimeout] = useState(null)
+    const [scrolled, setScrolled] = useState(false)
+    const [cartHovered, setCartHovered] = useState(false)
 
     useEffect(() => {
         fetchCategories()
+    }, [])
+
+    // Track scroll for sticky navbar with blur
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 50)
+        }
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
     const fetchCategories = async () => {
@@ -35,13 +46,20 @@ export default function Header(){
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
-        clearCart() 
+        clearCart()
         checkUser()
         window.location.href = '/'
     }
 
+    // Calculate cart total
+    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+
     return(
-        <header className='bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm'>
+        <header className={`sticky top-0 z-50 transition-all duration-300 ${
+            scrolled 
+                ? 'bg-white/90 backdrop-blur-lg shadow-lg' 
+                : 'bg-white border-b border-gray-200 shadow-sm'
+        }`}>
             <div className='max-w-7xl mx-auto px-6 py-4'>
                 {/* Desktop Header */}
                 <div className='flex items-center justify-between'>
@@ -63,13 +81,14 @@ export default function Header(){
                             <li>
                                 <Link 
                                     href={"/"} 
-                                    className="text-gray-600 hover:text-black font-semibold text-lg transition-colors"
+                                    className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors group"
                                 >
                                     Home
+                                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                             </li>
 
-                            {/* Parts Dropdown */}
+                            {/* Parts Dropdown - Simple version (not mega menu) */}
                             <li 
                                 className="relative"
                                 onMouseEnter={() => {
@@ -79,23 +98,24 @@ export default function Header(){
                                 onMouseLeave={() => {
                                     const timeout = setTimeout(() => {
                                         setPartsDropdownOpen(false)
-                                    }, 300) // 300ms delay
+                                    }, 300)
                                     setPartsTimeout(timeout)
                                 }}
                             >
                                 <Link 
                                     href={"/catalog"} 
-                                    className="text-gray-600 hover:text-black font-semibold text-lg transition-colors flex items-center gap-1"
+                                    className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors flex items-center gap-1 group"
                                 >
                                     Parts
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-4 h-4 transition-transform duration-200 ${partsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
+                                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                                 
                                 {/* Parts Dropdown Menu */}
                                 {partsDropdownOpen && (
-                                    <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2">
+                                    <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 animate-scale-in">
                                         <Link 
                                             href="/catalog" 
                                             className="block px-4 py-2 text-gray-700 hover:bg-gray-100 font-medium"
@@ -127,13 +147,14 @@ export default function Header(){
                                 )}
                             </li>
 
-                            {/* Trucks - Coming Soon */}
+                            {/* Trucks */}
                             <li>
                                 <Link 
                                     href={"/trucks"} 
-                                    className="text-gray-600 hover:text-black font-semibold text-lg transition-colors"
+                                    className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors group"
                                 >
                                     Trucks
+                                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                             </li>
 
@@ -147,23 +168,24 @@ export default function Header(){
                                 onMouseLeave={() => {
                                     const timeout = setTimeout(() => {
                                         setServicesDropdownOpen(false)
-                                    }, 300) // 300ms delay
+                                    }, 300)
                                     setServicesTimeout(timeout)
                                 }}
                             >
                                 <Link
                                     href="/services"
-                                    className="text-gray-600 hover:text-black font-semibold text-lg transition-colors flex items-center gap-1"
+                                    className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors flex items-center gap-1 group"
                                 >
                                     Services
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className={`w-4 h-4 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
+                                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                                 
                                 {/* Services Dropdown Menu */}
                                 {servicesDropdownOpen && (
-                                    <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2">
+                                    <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 animate-scale-in">
                                         <Link 
                                             href="/request-part" 
                                             className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -189,17 +211,19 @@ export default function Header(){
                             <li>
                                 <Link 
                                     href={"/about"} 
-                                    className="text-gray-600 hover:text-black font-semibold text-lg transition-colors"
+                                    className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors group"
                                 >
                                     About
+                                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                             </li>
                             <li>
                                 <Link 
                                     href={"/contact"} 
-                                    className="text-gray-600 hover:text-black font-semibold text-lg transition-colors"
+                                    className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors group"
                                 >
                                     Contact
+                                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                             </li>
 
@@ -209,17 +233,19 @@ export default function Header(){
                                     <li>
                                         <Link 
                                             href="/account" 
-                                            className="text-gray-600 hover:text-black font-semibold text-lg transition-colors"
+                                            className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors group"
                                         >
                                             Account
+                                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                         </Link>
                                     </li>
                                     <li>
                                         <button
                                             onClick={handleLogout}
-                                            className="text-gray-600 hover:text-black font-semibold text-lg transition-colors"
+                                            className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors group"
                                         >
                                             Logout
+                                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                         </button>
                                     </li>
                                 </>
@@ -228,15 +254,16 @@ export default function Header(){
                                     <li>
                                         <Link 
                                             href="/login" 
-                                            className="text-gray-600 hover:text-black font-semibold text-lg transition-colors"
+                                            className="relative text-gray-600 hover:text-black font-semibold text-lg transition-colors group"
                                         >
                                             Login
+                                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
                                         </Link>
                                     </li>
                                     <li>
                                         <Link 
                                             href="/signup" 
-                                            className="bg-black text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                                            className="bg-black text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-800 transition-all transform hover:scale-105"
                                         >
                                             Sign Up
                                         </Link>
@@ -244,10 +271,14 @@ export default function Header(){
                                 </>
                             )}
 
-                            {/* Cart Icon */}
-                            <li>
-                                <Link href="/cart" className="relative">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {/* Cart Icon with Preview */}
+                            <li 
+                                className="relative"
+                                onMouseEnter={() => setCartHovered(true)}
+                                onMouseLeave={() => setCartHovered(false)}
+                            >
+                                <Link href="/cart" className="relative group">
+                                    <svg className="w-6 h-6 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                     {cartCount > 0 && (
@@ -256,6 +287,44 @@ export default function Header(){
                                         </span>
                                     )}
                                 </Link>
+
+                                {/* Cart Preview Dropdown */}
+                                {cartHovered && cartCount > 0 && (
+                                    <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 p-4 animate-scale-in">
+                                        <h3 className="font-bold text-gray-900 mb-3 pb-2 border-b">Your Cart ({cartCount} {cartCount === 1 ? 'item' : 'items'})</h3>
+                                        <div className="space-y-3 max-h-64 overflow-y-auto mb-3">
+                                            {cart.map((item) => (
+                                                <div key={item.id} className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
+                                                    <div className="flex-1">
+                                                        <p className="font-medium text-sm">{item.name}</p>
+                                                        <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                                                    </div>
+                                                    <p className="font-semibold text-sm">${(item.price * item.quantity).toFixed(2)}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="border-t pt-3 mb-3">
+                                            <div className="flex justify-between font-bold text-lg">
+                                                <span>Total:</span>
+                                                <span>${cartTotal.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Link 
+                                                href="/cart" 
+                                                className="flex-1 bg-gray-200 text-gray-800 text-center py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                                            >
+                                                View Cart
+                                            </Link>
+                                            <Link 
+                                                href="/request-quote" 
+                                                className="flex-1 bg-black text-white text-center py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                                            >
+                                                Get Quote
+                                            </Link>
+                                        </div>
+                                    </div>
+                                )}
                             </li>
                         </ul>
                     </nav>
@@ -322,7 +391,7 @@ export default function Header(){
                 )}
             </div>
 
-            {/* Promotional Bar - BIGGER & NAVY BLUE */}
+            {/* Promotional Bar - Navy Blue */}
             <div className="bg-[#001f54] text-white py-4 text-center">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-8">
