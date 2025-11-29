@@ -404,7 +404,7 @@ export default function Header(){
                         </span>
                         <span className="hidden md:block text-white/50">|</span>
                         <span className="font-semibold text-base flex items-center gap-2">
-                            ✨ <span>Save 5% as a Registered Customer</span>
+                            💰 <span>Save 5% as a Registered Customer</span>
                         </span>
                     </div>
                 </div>

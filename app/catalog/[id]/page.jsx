@@ -12,7 +12,7 @@ import { useToast } from '@/lib/ToastContext'
 export default function ProductDetailPage({ params }) {
     const [product, setProduct] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [selectedImage, setSelectedImage] = useState(0) // ← NEW: Track which image is selected
+    const [selectedImage, setSelectedImage] = useState(0)
     const [formData, setFormData] = useState({
         customer_name: '',
         customer_email: '',
@@ -82,6 +82,15 @@ export default function ProductDetailPage({ params }) {
         }
     }
 
+    const handleAddToCart = () => {
+        const cartItem = {
+            ...product,
+            price: user ? product.customer_price : product.retail_price
+        }
+        addToCart(cartItem, 1)
+        success(`${product.name} added to cart!`)
+    }
+
     if (loading) {
         return (
             <div>
@@ -146,7 +155,7 @@ export default function ProductDetailPage({ params }) {
                                 )}
                             </div>
 
-                            {/* Thumbnail Gallery - ONLY SHOW IF MULTIPLE IMAGES */}
+                            {/* Thumbnail Gallery */}
                             {product.images && product.images.length > 1 && (
                                 <div className="grid grid-cols-4 gap-2">
                                     {product.images.map((image, index) => (
@@ -186,7 +195,6 @@ export default function ProductDetailPage({ params }) {
                                     </p>
                                 )}
                                 
-                                {/* Stock Status Badge */}
                                 {product.stock_status && (
                                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                                         product.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
@@ -207,42 +215,76 @@ export default function ProductDetailPage({ params }) {
                                 </p>
                             )}
 
-                            {/* Pricing */}
-                            <div className="mb-6">
+                            {/* Pricing - PROFESSIONAL OPTION 4 */}
+                            <div className="mb-6 bg-white rounded-lg shadow-md p-6 border border-gray-200">
                                 {user ? (
-                                    // Logged in - show both prices
+                                    // Logged in - show member pricing
                                     <div>
-                                        <p className="text-sm text-gray-500 line-through">
-                                            Retail: ${product.retail_price}
+                                        <p className="text-sm text-gray-500 mb-1">Regular Price</p>
+                                        <p className="text-lg text-gray-500 line-through mb-3">
+                                            ${product.retail_price}
                                         </p>
-                                        <p className="text-3xl font-bold text-black">
-                                            Your Price: ${product.customer_price}
+                                        <p className="text-sm text-gray-600 mb-1">Your Member Price ✨</p>
+                                        <p className="text-4xl font-bold text-black mb-2">
+                                            ${product.customer_price}
                                         </p>
-                                        <p className="text-sm text-green-600 font-medium">
-                                            You save ${(product.retail_price - product.customer_price).toFixed(2)}!
-                                        </p>
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 inline-block">
+                                            <p className="text-sm text-green-700 font-semibold">
+                                                💚 You save ${(product.retail_price - product.customer_price).toFixed(2)} ({Math.round(((product.retail_price - product.customer_price) / product.retail_price) * 100)}% off)
+                                            </p>
+                                        </div>
                                     </div>
                                 ) : (
-                                    // Not logged in - show retail price
+                                    // Not logged in - show professional pricing with login prompt
                                     <div>
-                                        <p className="text-3xl font-bold text-black">
-                                            Starting at ${product.retail_price}
-                                        </p>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            Sign in for exclusive customer pricing
-                                        </p>
+                                        <div className="mb-4 pb-4 border-b border-gray-200">
+                                            <p className="text-sm text-gray-600 mb-1">Regular Price</p>
+                                            <p className="text-2xl font-semibold text-gray-900">
+                                                ${product.retail_price}
+                                            </p>
+                                        </div>
+                                        <div className="mb-4">
+                                            <p className="text-sm text-gray-600 mb-1">Member Price ✨</p>
+                                            <p className="text-4xl font-bold text-black">
+                                                ${product.customer_price}
+                                            </p>
+                                        </div>
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <div className="flex items-start gap-3 mb-3">
+                                                <span className="text-2xl">🔐</span>
+                                                <div className="flex-1">
+                                                    <p className="text-blue-900 font-semibold mb-1">
+                                                        Sign in to unlock member pricing
+                                                    </p>
+                                                    <p className="text-blue-700 text-sm">
+                                                        Save ${(product.retail_price - product.customer_price).toFixed(2)} ({Math.round(((product.retail_price - product.customer_price) / product.retail_price) * 100)}% off) when you create an account!
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-3">
+                                                <Link
+                                                    href="/signup"
+                                                    className="flex-1 bg-black text-white text-center py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                                                >
+                                                    Create Account
+                                                </Link>
+                                                <Link
+                                                    href="/login"
+                                                    className="flex-1 bg-white text-black text-center py-3 rounded-lg font-semibold border-2 border-gray-300 hover:bg-gray-50 transition-colors"
+                                                >
+                                                    Login
+                                                </Link>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
                             {/* Add to Cart Button */}
                             <button
-                                onClick={() => {
-                                    addToCart(product, 1)
-                                    alert('Added to cart!')
-                                }}
+                                onClick={handleAddToCart}
                                 disabled={product.stock_status === 'out_of_stock'}
-                                className="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 mb-8 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                className="w-full bg-black text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-800 mb-8 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-105"
                             >
                                 {product.stock_status === 'out_of_stock' ? 'Out of Stock' : 'Add to Cart'}
                             </button>
@@ -267,7 +309,6 @@ export default function ProductDetailPage({ params }) {
                                 )}
                                 
                                 <form onSubmit={handleSubmit} className="space-y-4">
-                                    {/* Name */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Name *
@@ -281,7 +322,6 @@ export default function ProductDetailPage({ params }) {
                                         />
                                     </div>
                                     
-                                    {/* Email */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Email *
@@ -295,7 +335,6 @@ export default function ProductDetailPage({ params }) {
                                         />
                                     </div>
                                     
-                                    {/* Company */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Company
@@ -308,7 +347,6 @@ export default function ProductDetailPage({ params }) {
                                         />
                                     </div>
                                     
-                                    {/* Phone */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Phone
@@ -321,7 +359,6 @@ export default function ProductDetailPage({ params }) {
                                         />
                                     </div>
                                     
-                                    {/* Quantity */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Quantity *
@@ -336,7 +373,6 @@ export default function ProductDetailPage({ params }) {
                                         />
                                     </div>
                                     
-                                    {/* Message */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Additional Information
@@ -349,7 +385,6 @@ export default function ProductDetailPage({ params }) {
                                         />
                                     </div>
                                     
-                                    {/* Submit Button */}
                                     <button
                                         type="submit"
                                         disabled={formSubmitting}

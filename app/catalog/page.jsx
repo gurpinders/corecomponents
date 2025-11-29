@@ -353,13 +353,47 @@ function CatalogContent() {
                                         {/* Pricing */}
                                         <div className="mb-4">
                                             {user ? (
+                                                // Logged in - show member pricing
                                                 <div>
                                                     <p className="text-sm text-gray-500 line-through">${part.retail_price}</p>
                                                     <p className="text-2xl font-bold text-green-600">${part.customer_price}</p>
                                                     <p className="text-xs text-green-600">You save ${(part.retail_price - part.customer_price).toFixed(2)}</p>
                                                 </div>
                                             ) : (
-                                                <p className="text-2xl font-bold">${part.retail_price}</p>
+                                                // Not logged in - show both prices with login prompt
+                                                <div>
+                                                    <div className="mb-3">
+                                                        <p className="text-sm text-gray-600">Regular Price</p>
+                                                        <p className="text-lg font-semibold text-gray-900">${part.retail_price}</p>
+                                                    </div>
+                                                    <div className="mb-3">
+                                                        <p className="text-sm text-gray-600">Member Price ✨</p>
+                                                        <p className="text-2xl font-bold text-black">${part.customer_price}</p>
+                                                    </div>
+                                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
+                                                        <p className="text-blue-900 font-medium flex items-center gap-2 mb-2">
+                                                            <span>🔐</span>
+                                                            <span>Sign in to unlock member pricing</span>
+                                                        </p>
+                                                        <p className="text-blue-700 text-xs mb-2">
+                                                            Save ${(part.retail_price - part.customer_price).toFixed(2)} ({Math.round(((part.retail_price - part.customer_price) / part.retail_price) * 100)}% off)
+                                                        </p>
+                                                        <div className="flex gap-2">
+                                                            <Link
+                                                                href="/signup"
+                                                                className="flex-1 bg-black text-white text-center py-1.5 rounded text-xs font-semibold hover:bg-gray-800 transition-colors"
+                                                            >
+                                                                Create Account
+                                                            </Link>
+                                                            <Link
+                                                                href="/login"
+                                                                className="flex-1 bg-white text-black text-center py-1.5 rounded text-xs font-semibold border border-gray-300 hover:bg-gray-50 transition-colors"
+                                                            >
+                                                                Login
+                                                            </Link>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             )}
                                         </div>
 
