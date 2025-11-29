@@ -128,7 +128,7 @@ function CatalogContent() {
         )
     }
 
-    // CATEGORY GRID VIEW
+    // CATEGORY GRID VIEW - 3x3 CENTERED
     if (!categoryId) {
         return (
             <div>
@@ -136,18 +136,18 @@ function CatalogContent() {
                 <main className="min-h-screen bg-gray-50 py-12">
                     <div className="max-w-7xl mx-auto px-6">
                         {/* Header */}
-                        <div className="mb-8">
+                        <div className="mb-8 text-center">
                             <h1 className="text-4xl font-bold mb-2">Browse Parts by Category</h1>
                             <p className="text-gray-600">Select a category to view available parts</p>
                         </div>
 
-                        {/* Category Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {/* Category Grid - 3x3 CENTERED */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                             {categories.map((category) => (
                                 <Link
                                     key={category.id}
                                     href={`/catalog?category=${category.id}`}
-                                    className="relative h-[300px] rounded-lg overflow-hidden group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+                                    className="relative h-[350px] rounded-lg overflow-hidden group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                                 >
                                     {/* Category Image */}
                                     <div className="absolute inset-0">
@@ -156,7 +156,7 @@ function CatalogContent() {
                                                 src={category.image}
                                                 alt={category.name}
                                                 fill
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                 className="object-cover transition-transform duration-300 group-hover:scale-110"
                                             />
                                         ) : (
@@ -273,7 +273,7 @@ function CatalogContent() {
                         </div>
                     )}
 
-                    {/* Parts Grid */}
+                    {/* Parts Grid - BIGGER CARDS */}
                     {parts.length === 0 ? (
                         <div className="text-center py-12">
                             {searchQuery ? (
@@ -299,12 +299,12 @@ function CatalogContent() {
                             </Link>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {parts.map((part) => (
-                                <div key={part.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
-                                    {/* Part Image */}
+                                <div key={part.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1">
+                                    {/* Part Image - BIGGER */}
                                     <Link href={`/catalog/${part.id}`}>
-                                        <div className="relative w-full h-48 bg-gray-100">
+                                        <div className="relative w-full h-64 bg-gray-100">
                                             {part.images && part.images[0] ? (
                                                 <Image
                                                     src={part.images[0]}
@@ -350,7 +350,7 @@ function CatalogContent() {
                                             </span>
                                         </div>
 
-                                        {/* Pricing */}
+                                        {/* Pricing - PROFESSIONAL OPTION 4 */}
                                         <div className="mb-4">
                                             {user ? (
                                                 // Logged in - show member pricing
