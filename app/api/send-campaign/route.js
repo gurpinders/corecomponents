@@ -236,7 +236,7 @@ function createEmailTemplate(campaign, campaignParts, customer) {
                 <![endif]-->
                 
                 <!-- Logo - directly in blue background -->
-                <img src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/logo.png" alt="CoreComponents" style="max-width: 250px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+                <img src="<img src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/logo-white.JPG" alt="CoreComponents" style="max-width: 300px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">" alt="CoreComponents" style="max-width: 250px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
                 
                 <!-- Headline - directly in blue background with text shadow for readability -->
                 <h1 style="color: #ffffff; font-size: 32px; margin: 0; font-weight: bold; line-height: 1.3; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">${
@@ -318,7 +318,7 @@ function createEmailTemplate(campaign, campaignParts, customer) {
               <!-- Footer -->
               <tr>
                 <td style="background-color: #1a1a1a; color: white; padding: 40px; text-align: center;">
-                  <div style="font-size: 26px; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px;">CORECOMPONENTS</div>
+                  <img src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/logo-white.JPG" alt="CoreComponents" style="max-width: 250px; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
                   <div style="font-size: 14px; line-height: 1.9; margin-bottom: 25px; opacity: 0.9;">
                     📍 Brampton, Ontario, Canada<br>
                     📞 (647) 993-8235<br>
