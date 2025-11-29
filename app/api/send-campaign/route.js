@@ -221,38 +221,34 @@ function createEmailTemplate(campaign, campaignParts, customer) {
           <td align="center" style="padding: 20px 0;">
             <table width="650" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; max-width: 650px;">
               
-              <!-- Hero Header with Pattern Background (Works in most clients) -->
-              <tr>
-                <td background="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/hero_background.png" bgcolor="#1a1f3a" style="background-image: url('${
+            <!-- Hero Header with Pattern Background (Works in most clients) -->
+            <tr>
+              <td background="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/hero_background.png" bgcolor="#1a1f3a" style="background-image: url('${
+                process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+              }/hero-background.png'); background-size: cover; background-position: center; padding: 50px 20px; text-align: center;">
+                <!--[if gte mso 9]>
+                <v:image xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="border: 0; display: inline-block; width: 650px; height: 300px;" src="${
                   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-                }/hero-background.png'); background-size: cover; background-position: center; padding: 50px 20px; text-align: center;">
-                  <!--[if gte mso 9]>
-                  <v:image xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="border: 0; display: inline-block; width: 650px; height: 300px;" src="${
-                    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-                  }/hero-background.png" />
-                  <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="border: 0; display: inline-block; position: absolute; width: 650px; height: 300px;">
-                  <v:fill opacity="0%" color="#1a1f3a" />
-                  <v:textbox inset="0,0,0,0">
-                  <![endif]-->
-                  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                    <tr>
-                      <td style="background-color: rgba(0, 0, 0, 0.6); padding: 30px; border-radius: 8px;">
-                        <!-- Logo -->
-                        <img src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/logo.png" alt="CoreComponents" style="max-width: 250px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
-                        
-                        <!-- Headline -->
-                        <h1 style="color: #ffffff; font-size: 32px; margin: 0; font-weight: bold; line-height: 1.3;">${
-                          campaign.headline
-                        }</h1>
-                      </td>
-                    </tr>
-                  </table>
-                  <!--[if gte mso 9]>
-                  </v:textbox>
-                  </v:rect>
-                  <![endif]-->
-                </td>
-              </tr>
+                }/hero-background.png" />
+                <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="border: 0; display: inline-block; position: absolute; width: 650px; height: 300px;">
+                <v:fill opacity="0%" color="#1a1f3a" />
+                <v:textbox inset="0,0,0,0">
+                <![endif]-->
+                
+                <!-- Logo - directly in blue background -->
+                <img src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/logo.png" alt="CoreComponents" style="max-width: 250px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+                
+                <!-- Headline - directly in blue background with text shadow for readability -->
+                <h1 style="color: #ffffff; font-size: 32px; margin: 0; font-weight: bold; line-height: 1.3; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">${
+                  campaign.headline
+                }</h1>
+                
+                <!--[if gte mso 9]>
+                </v:textbox>
+                </v:rect>
+                <![endif]-->
+              </td>
+            </tr>
 
               <!-- Announcement Bar -->
               <tr>
