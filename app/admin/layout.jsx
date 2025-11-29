@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getUser, signOut } from '@/lib/auth'
 
 export default function AdminLayout({ children }) {
@@ -60,14 +61,20 @@ export default function AdminLayout({ children }) {
             {/* Header */}
             <header className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <Link href="/admin" className="text-2xl font-bold hover:text-gray-700">
-                        CoreComponents Admin
+                    <Link href="/admin" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <Image 
+                            src="/logo.png" 
+                            alt="CoreComponents Logo" 
+                            width={1600} 
+                            height={900} 
+                            className="h-16 w-auto"
+                        />
                     </Link>
                     <div className="flex items-center gap-4">
                         <span className="text-sm text-gray-600">{user?.email}</span>
                         <button
                             onClick={handleSignOut}
-                            className="text-sm text-red-600 hover:text-red-800"
+                            className="text-sm text-red-600 hover:text-red-800 font-medium"
                         >
                             Logout
                         </button>
