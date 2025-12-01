@@ -88,6 +88,26 @@ export default function CheckoutPage() {
 
             if (itemsError) throw itemsError
 
+            // Send SMS notification (don't block order if SMS fails)
+            try {
+                await fetch('/api/send-order-sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderId: order.id.substring(0, 8), // Short ID for SMS
+                        customer_name: formData.customer_name,
+                        customer_email: formData.customer_email,
+                        customer_phone: formData.customer_phone,
+                        total: total.toFixed(2),
+                        items: cart,
+                        delivery_method: formData.delivery_method
+                    })
+                })
+            } catch (smsError) {
+                console.error('SMS notification failed:', smsError)
+                // Continue anyway - SMS failure shouldn't block order
+            }
+
             // Clear cart
             clearCart()
 
