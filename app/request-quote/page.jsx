@@ -45,6 +45,29 @@ export default function RequestQuotePage() {
 
             if (insertError) throw insertError
 
+            // Send SMS notification
+            try {
+                const itemsList = cart.map(item => `${item.name} (x${item.quantity})`).join(', ')
+                
+                await fetch('/api/send-quote-sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_name: formData.customer_name,
+                        customer_email: formData.customer_email,
+                        customer_company: formData.customer_company,
+                        customer_phone: formData.customer_phone,
+                        part_name: itemsList,
+                        quantity: cart.reduce((sum, item) => sum + item.quantity, 0),
+                        message: formData.message
+                    })
+                })
+                // Don't wait for SMS to complete - let it run in background
+            } catch (smsError) {
+                console.error('SMS notification failed:', smsError)
+                // Continue anyway - SMS failure shouldn't block the quote
+            }
+
             // Clear cart and redirect
             clearCart()
             router.push('/quote-success')
