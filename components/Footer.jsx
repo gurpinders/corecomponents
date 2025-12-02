@@ -30,7 +30,7 @@ export default function Footer(){
                         <h3 className="text-xl font-bold mb-4">Contact Us</h3>
                         <p className="text-gray-400 mb-2">Phone: (647) 993-8235</p>
                         <p className="text-gray-400 mb-2">Email: info@ccomponents.ca</p>
-                        <p className="text-gray-400 mb-2">Mon-Sat: 8AM - 9PM EST</p>
+                        <p className="text-gray-400 mb-2">Business Hours: Mon - Sat (8AM - 9PM EST)</p>
                     </div> 
                 </div>
                 <div className="border-t border-gray-800 pt-8 text-center text-gray-400">

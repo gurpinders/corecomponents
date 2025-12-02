@@ -16,6 +16,8 @@ export default function Header(){
     const [partsDropdownOpen, setPartsDropdownOpen] = useState(false)
     const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [mobilePartsOpen, setMobilePartsOpen] = useState(false)
+    const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
     const [partsTimeout, setPartsTimeout] = useState(null)
     const [servicesTimeout, setServicesTimeout] = useState(null)
     const [scrolled, setScrolled] = useState(false)
@@ -61,7 +63,7 @@ export default function Header(){
                 : 'bg-white border-b border-gray-200 shadow-sm'
         }`}>
             <div className='max-w-7xl mx-auto px-6 py-4'>
-                {/* Desktop Header */}
+                {/* Desktop & Mobile Header */}
                 <div className='flex items-center justify-between'>
                     {/* Logo */}
                     <Link href={"/"}>
@@ -70,7 +72,7 @@ export default function Header(){
                             alt="CoreComponents Logo" 
                             width={1600} 
                             height={900} 
-                            className='h-24 w-auto'
+                            className='h-16 md:h-24 w-auto'
                             priority
                         />
                     </Link>
@@ -329,82 +331,200 @@ export default function Header(){
                         </ul>
                     </nav>
 
-                    {/* Mobile Menu Button */}
-                    <button 
-                        className="lg:hidden"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
+                    {/* Mobile: Cart + Hamburger Menu */}
+                    <div className="lg:hidden flex items-center gap-4">
+                        {/* Cart Icon */}
+                        <Link href="/cart" className="relative">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            {cartCount > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
+
+                        {/* Hamburger Menu Button */}
+                        <button 
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="p-2"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {mobileMenuOpen ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Menu */}
                 {mobileMenuOpen && (
                     <div className="lg:hidden mt-4 pb-4 border-t pt-4">
-                        <nav className="space-y-2">
-                            <Link href="/" className="block py-2 text-gray-700 hover:text-black font-medium">
+                        <nav className="space-y-1">
+                            <Link 
+                                href="/" 
+                                className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
                                 Home
                             </Link>
-                            <Link href="/catalog" className="block py-2 text-gray-700 hover:text-black font-medium">
-                                Parts
-                            </Link>
-                            <Link href="/trucks" className="block py-2 text-gray-700 hover:text-black font-medium">
+
+                            {/* Parts Expandable */}
+                            <div>
+                                <button
+                                    onClick={() => setMobilePartsOpen(!mobilePartsOpen)}
+                                    className="w-full flex items-center justify-between py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+                                >
+                                    <span>Parts</span>
+                                    <svg className={`w-4 h-4 transition-transform ${mobilePartsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {mobilePartsOpen && (
+                                    <div className="ml-4 mt-1 space-y-1">
+                                        <Link 
+                                            href="/catalog" 
+                                            className="block py-2 px-3 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            Browse All Parts
+                                        </Link>
+                                        {categories.map((category) => (
+                                            <Link
+                                                key={category.id}
+                                                href={`/catalog?category=${category.id}`}
+                                                className="block py-2 px-3 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                                                onClick={() => setMobileMenuOpen(false)}
+                                            >
+                                                {category.name}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <Link 
+                                href="/trucks" 
+                                className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
                                 Trucks
                             </Link>
-                            <Link href="/request-part" className="block py-2 text-gray-700 hover:text-black font-medium">
-                                Request a Part
-                            </Link>
-                            <Link href="/about" className="block py-2 text-gray-700 hover:text-black font-medium">
+
+                            {/* Services Expandable */}
+                            <div>
+                                <button
+                                    onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                                    className="w-full flex items-center justify-between py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+                                >
+                                    <span>Services</span>
+                                    <svg className={`w-4 h-4 transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {mobileServicesOpen && (
+                                    <div className="ml-4 mt-1 space-y-1">
+                                        <Link 
+                                            href="/request-part" 
+                                            className="block py-2 px-3 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            Request a Part
+                                        </Link>
+                                        <Link 
+                                            href="/shipping" 
+                                            className="block py-2 px-3 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            Shipping Information
+                                        </Link>
+                                        <Link 
+                                            href="/warranty" 
+                                            className="block py-2 px-3 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            Warranty & Returns
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+
+                            <Link 
+                                href="/about" 
+                                className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
                                 About
                             </Link>
-                            <Link href="/contact" className="block py-2 text-gray-700 hover:text-black font-medium">
+                            <Link 
+                                href="/contact" 
+                                className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
                                 Contact
                             </Link>
                             
                             {user ? (
                                 <>
-                                    <Link href="/account" className="block py-2 text-gray-700 hover:text-black font-medium">
+                                    <Link 
+                                        href="/account" 
+                                        className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
                                         Account
                                     </Link>
-                                    <button onClick={handleLogout} className="block py-2 text-gray-700 hover:text-black font-medium w-full text-left">
+                                    <button 
+                                        onClick={() => {
+                                            handleLogout()
+                                            setMobileMenuOpen(false)
+                                        }} 
+                                        className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium w-full text-left"
+                                    >
                                         Logout
                                     </button>
                                 </>
                             ) : (
-                                <>
-                                    <Link href="/login" className="block py-2 text-gray-700 hover:text-black font-medium">
+                                <div className="flex gap-2 px-3 pt-2">
+                                    <Link 
+                                        href="/login" 
+                                        className="flex-1 py-2 text-center border-2 border-black text-black rounded-lg font-semibold hover:bg-gray-100"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
                                         Login
                                     </Link>
-                                    <Link href="/signup" className="block py-2 bg-black text-white px-4 rounded-lg font-medium text-center">
+                                    <Link 
+                                        href="/signup" 
+                                        className="flex-1 py-2 text-center bg-black text-white rounded-lg font-semibold hover:bg-gray-800"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
                                         Sign Up
                                     </Link>
-                                </>
+                                </div>
                             )}
-
-                            <Link href="/cart" className="block py-2 text-gray-700 hover:text-black font-medium">
-                                Cart ({cartCount})
-                            </Link>
                         </nav>
                     </div>
                 )}
             </div>
 
-            {/* Promotional Bar - Navy Blue */}
-            <div className="bg-[#001f54] text-white py-4 text-center">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-8">
-                        <span className="font-bold text-lg flex items-center gap-2">
-                            📞 <span>Call Us: 647-993-8235</span>
+            {/* Promotional Bar - Navy Blue (MOBILE OPTIMIZED) */}
+            <div className="bg-[#001f54] text-white py-2 md:py-4 text-center">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-8">
+                        <span className="font-bold text-xs md:text-lg flex items-center gap-1 md:gap-2">
+                            📞 <span>647-993-8235</span>
                         </span>
                         <span className="hidden md:block text-white/50">|</span>
-                        <span className="font-semibold text-base flex items-center gap-2">
-                            🚚 <span>Free Delivery in GTA</span>
+                        <span className="font-semibold text-xs md:text-base flex items-center gap-1 md:gap-2">
+                            🚚 <span>Free Delivery GTA</span>
                         </span>
                         <span className="hidden md:block text-white/50">|</span>
-                        <span className="font-semibold text-base flex items-center gap-2">
-                            💰 <span>Save 5% as a Registered Customer</span>
+                        <span className="font-semibold text-xs md:text-base flex items-center gap-1 md:gap-2">
+                            💰 <span className="hidden sm:inline">Save 5% as Registered Customer</span>
+                            <span className="sm:hidden">5% Off Members</span>
                         </span>
                     </div>
                 </div>
