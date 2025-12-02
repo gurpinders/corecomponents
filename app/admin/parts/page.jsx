@@ -66,13 +66,13 @@ export default function AdminPartsPage(){
     return (
         <AdminProtection>
             <main className="min-h-screen bg-gray-50 py-8">
-                <div className="max-w-7xl mx-auto px-6">
+                <div className="max-w-7xl mx-auto">
                     {/* Header */}
-                    <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-bold">Manage Parts</h1>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                        <h1 className="text-2xl sm:text-3xl font-bold">Manage Parts</h1>
                         <Link 
                             href="/admin/parts/new"
-                            className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800"
+                            className="bg-black text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-bold hover:bg-gray-800 text-center w-full sm:w-auto"
                         >
                             Add New Part
                         </Link>
@@ -97,92 +97,171 @@ export default function AdminPartsPage(){
                         </p>
                     )}
 
-                    {/* Parts Table */}
+                    {/* DESKTOP: Parts Table */}
                     {!loading && !error && parts.length > 0 && (
-                        <div className="bg-white rounded-lg shadow overflow-hidden">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Image
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Name
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Category
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Prices
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Stock
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {parts.map((part) => (
-                                        <tr key={part.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {part.images && part.images[0] ? (
-                                                    <Image 
-                                                        src={part.images[0]} 
-                                                        alt={part.name}
-                                                        width={48}
-                                                        height={48}
-                                                        className="h-12 w-12 rounded object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="h-12 w-12 bg-gray-200 rounded"></div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="font-medium text-gray-900">{part.name}</div>
-                                                {part.sku && (
-                                                    <div className="text-sm text-gray-500">SKU: {part.sku}</div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {part.categories?.name || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm">
-                                                    <div className="text-gray-500">Retail: ${part.retail_price}</div>
-                                                    <div className="text-green-600 font-medium">Customer: ${part.customer_price}</div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                                                    part.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
-                                                    part.stock_status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {part.stock_status === 'in_stock' ? 'In Stock' :
-                                                     part.stock_status === 'low_stock' ? 'Low Stock' :
-                                                     'Out of Stock'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                <Link
-                                                    href={`/admin/parts/${part.id}/edit`}
-                                                    className="text-blue-600 hover:text-blue-900 mr-4"
-                                                >
-                                                    Edit
-                                                </Link>
-                                                <button
-                                                    onClick={() => handleDelete(part.id, part.name)}
-                                                    className="text-red-600 hover:text-red-900"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
+                        <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Image
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Name
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Category
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Prices
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Stock
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Actions
+                                            </th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {parts.map((part) => (
+                                            <tr key={part.id}>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {part.images && part.images[0] ? (
+                                                        <Image 
+                                                            src={part.images[0]} 
+                                                            alt={part.name}
+                                                            width={48}
+                                                            height={48}
+                                                            className="h-12 w-12 rounded object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="h-12 w-12 bg-gray-200 rounded"></div>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="font-medium text-gray-900">{part.name}</div>
+                                                    {part.sku && (
+                                                        <div className="text-sm text-gray-500">SKU: {part.sku}</div>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {part.categories?.name || 'N/A'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="text-sm">
+                                                        <div className="text-gray-500">Retail: ${part.retail_price}</div>
+                                                        <div className="text-green-600 font-medium">Customer: ${part.customer_price}</div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                                        part.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
+                                                        part.stock_status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-red-100 text-red-800'
+                                                    }`}>
+                                                        {part.stock_status === 'in_stock' ? 'In Stock' :
+                                                         part.stock_status === 'low_stock' ? 'Low Stock' :
+                                                         'Out of Stock'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <Link
+                                                        href={`/admin/parts/${part.id}/edit`}
+                                                        className="text-blue-600 hover:text-blue-900 mr-4"
+                                                    >
+                                                        Edit
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => handleDelete(part.id, part.name)}
+                                                        className="text-red-600 hover:text-red-900"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MOBILE: Parts Cards */}
+                    {!loading && !error && parts.length > 0 && (
+                        <div className="md:hidden space-y-4">
+                            {parts.map((part) => (
+                                <div key={part.id} className="bg-white rounded-lg shadow p-4">
+                                    {/* Part Image and Name */}
+                                    <div className="flex items-start gap-4 mb-4">
+                                        {part.images && part.images[0] ? (
+                                            <Image 
+                                                src={part.images[0]} 
+                                                alt={part.name}
+                                                width={80}
+                                                height={80}
+                                                className="h-20 w-20 rounded object-cover flex-shrink-0"
+                                            />
+                                        ) : (
+                                            <div className="h-20 w-20 bg-gray-200 rounded flex-shrink-0"></div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-bold text-gray-900 text-lg mb-1 break-words">{part.name}</h3>
+                                            {part.sku && (
+                                                <p className="text-sm text-gray-500">SKU: {part.sku}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Part Details */}
+                                    <div className="space-y-3 border-t pt-3">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-gray-600">Category:</span>
+                                            <span className="text-sm text-gray-900">{part.categories?.name || 'N/A'}</span>
+                                        </div>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-gray-600">Retail Price:</span>
+                                            <span className="text-sm text-gray-900">${part.retail_price}</span>
+                                        </div>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-gray-600">Customer Price:</span>
+                                            <span className="text-sm font-semibold text-green-600">${part.customer_price}</span>
+                                        </div>
+
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-gray-600">Stock Status:</span>
+                                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                                part.stock_status === 'in_stock' ? 'bg-green-100 text-green-800' :
+                                                part.stock_status === 'low_stock' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-red-100 text-red-800'
+                                            }`}>
+                                                {part.stock_status === 'in_stock' ? 'In Stock' :
+                                                 part.stock_status === 'low_stock' ? 'Low Stock' :
+                                                 'Out of Stock'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex gap-2 mt-4 pt-3 border-t">
+                                        <Link
+                                            href={`/admin/parts/${part.id}/edit`}
+                                            className="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg font-medium hover:bg-blue-700"
+                                        >
+                                            Edit
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDelete(part.id, part.name)}
+                                            className="flex-1 bg-red-600 text-white py-2 rounded-lg font-medium hover:bg-red-700"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
