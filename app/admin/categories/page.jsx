@@ -64,13 +64,13 @@ export default function AdminCategoriesPage() {
     return (
         <AdminProtection>
             <main className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold">Manage Categories</h1>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold">Manage Categories</h1>
                     <Link 
                         href="/admin/categories/new"
-                        className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800"
+                        className="bg-black text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-bold hover:bg-gray-800 text-center w-full sm:w-auto"
                     >
                         Add New Category
                     </Link>
@@ -95,58 +95,99 @@ export default function AdminCategoriesPage() {
                     </p>
                 )}
 
-                {/* Categories Table */}
+                {/* DESKTOP: Categories Table */}
                 {!loading && !error && categories.length > 0 && (
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Display Order
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Description
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {categories.map((category) => (
-                                    <tr key={category.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {category.display_order}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-medium text-gray-900">{category.name}</div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            <div className="max-w-xs truncate">
-                                                {category.description || 'No description'}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <Link
-                                                href={`/admin/categories/${category.id}/edit`}
-                                                className="text-blue-600 hover:text-blue-900 mr-4"
-                                            >
-                                                Edit
-                                            </Link>
-                                            <button
-                                                onClick={() => handleDelete(category.id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
+                    <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Display Order
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Name
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Description
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {categories.map((category) => (
+                                        <tr key={category.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {category.display_order}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="font-medium text-gray-900">{category.name}</div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                                <div className="max-w-xs truncate">
+                                                    {category.description || 'No description'}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                <Link
+                                                    href={`/admin/categories/${category.id}/edit`}
+                                                    className="text-blue-600 hover:text-blue-900 mr-4"
+                                                >
+                                                    Edit
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDelete(category.id, category.name)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* MOBILE: Categories Cards */}
+                {!loading && !error && categories.length > 0 && (
+                    <div className="md:hidden space-y-4">
+                        {categories.map((category) => (
+                            <div key={category.id} className="bg-white rounded-lg shadow p-4">
+                                <div className="flex justify-between items-start mb-3">
+                                    <h3 className="font-bold text-gray-900 text-lg flex-1">{category.name}</h3>
+                                    <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-semibold ml-2">
+                                        #{category.display_order}
+                                    </span>
+                                </div>
+
+                                <div className="space-y-3 border-t pt-3">
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-600 block mb-1">Description:</span>
+                                        <p className="text-sm text-gray-900">{category.description || 'No description'}</p>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex gap-2 mt-4 pt-3 border-t">
+                                    <Link
+                                        href={`/admin/categories/${category.id}/edit`}
+                                        className="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg font-medium hover:bg-blue-700"
+                                    >
+                                        Edit
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(category.id, category.name)}
+                                        className="flex-1 bg-red-600 text-white py-2 rounded-lg font-medium hover:bg-red-700"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
