@@ -52,8 +52,13 @@ export default function ContactPage() {
                                 <h2 className="text-2xl font-bold mb-6">Get In Touch</h2>
                                 
                                 <div className="space-y-6">
+                                    {/* Phone */}
                                     <div className="flex items-start">
-                                        <span className="text-3xl mr-4">📞</span>
+                                        <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                        </div>
                                         <div>
                                             <h3 className="font-bold mb-1">Phone</h3>
                                             <a href="tel:6479938235" className="text-blue-600 hover:underline text-lg">
@@ -63,8 +68,13 @@ export default function ContactPage() {
                                         </div>
                                     </div>
 
+                                    {/* Email */}
                                     <div className="flex items-start">
-                                        <span className="text-3xl mr-4">📧</span>
+                                        <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
                                         <div>
                                             <h3 className="font-bold mb-1">Email</h3>
                                             <a href="mailto:info@ccomponents.ca" className="text-blue-600 hover:underline">
@@ -74,16 +84,28 @@ export default function ContactPage() {
                                         </div>
                                     </div>
 
+                                    {/* Location */}
                                     <div className="flex items-start">
-                                        <span className="text-3xl mr-4">📍</span>
+                                        <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </div>
                                         <div>
                                             <h3 className="font-bold mb-1">Location</h3>
                                             <p className="text-gray-700">Brampton, Ontario<br/>Canada</p>
                                         </div>
                                     </div>
 
+                                    {/* Service Area */}
                                     <div className="flex items-start">
-                                        <span className="text-3xl mr-4">🚚</span>
+                                        <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                            </svg>
+                                        </div>
                                         <div>
                                             <h3 className="font-bold mb-1">Service Area</h3>
                                             <p className="text-gray-700">Greater Toronto Area<br/>Free shipping in GTA</p>
@@ -186,7 +208,7 @@ export default function ContactPage() {
                                     </label>
                                     <textarea
                                         name="message"
-                                        value={formData.message}
+                                        value={formData.value}
                                         onChange={handleChange}
                                         required
                                         rows="5"
