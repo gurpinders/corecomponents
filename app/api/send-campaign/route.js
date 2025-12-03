@@ -269,32 +269,43 @@ function createEmailTemplate(campaign, campaignParts, customer) {
                     ${gridHtml}
                   </table>
 
-                  <!-- Trust Badges -->
-                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f8f8; margin: 40px 0 0 0; border-radius: 10px;">
+                 <!-- Trust Badges -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f8f8; margin: 40px 0 0 0; border-radius: 10px;">
                     <tr>
-                      <td style="padding: 35px 20px;">
-                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                          <tr>
-                            <td width="33%" align="center" valign="top" style="padding: 0 10px;">
-                              <div style="font-size: 36px; margin-bottom: 12px;">🚚</div>
-                              <div style="font-size: 14px; font-weight: bold; color: #1a1a1a; margin-bottom: 5px;">Fast Shipping</div>
-                              <div style="font-size: 12px; color: #666;">Same day dispatch</div>
-                            </td>
-                            <td width="33%" align="center" valign="top" style="padding: 0 10px;">
-                              <div style="font-size: 36px; margin-bottom: 12px;">✓</div>
-                              <div style="font-size: 14px; font-weight: bold; color: #1a1a1a; margin-bottom: 5px;">Quality Guaranteed</div>
-                              <div style="font-size: 12px; color: #666;">DOT certified</div>
-                            </td>
-                            <td width="33%" align="center" valign="top" style="padding: 0 10px;">
-                              <div style="font-size: 36px; margin-bottom: 12px;">🔧</div>
-                              <div style="font-size: 14px; font-weight: bold; color: #1a1a1a; margin-bottom: 5px;">Expert Support</div>
-                              <div style="font-size: 12px; color: #666;">Technical assistance</div>
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
+                        <td style="padding: 35px 20px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td width="33%" align="center" valign="top" style="padding: 0 10px;">
+                                        <!-- Truck Icon SVG - Black -->
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" style="margin: 0 auto 12px;">
+                                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                        </svg>
+                                        <div style="font-size: 14px; font-weight: bold; color: #1a1a1a; margin-bottom: 5px;">Fast Shipping</div>
+                                        <div style="font-size: 12px; color: #666;">Same day dispatch</div>
+                                    </td>
+                                    <td width="33%" align="center" valign="top" style="padding: 0 10px;">
+                                        <!-- Check Circle Icon SVG - Black -->
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" style="margin: 0 auto 12px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div style="font-size: 14px; font-weight: bold; color: #1a1a1a; margin-bottom: 5px;">Quality Guaranteed</div>
+                                        <div style="font-size: 12px; color: #666;">DOT certified</div>
+                                    </td>
+                                    <td width="33%" align="center" valign="top" style="padding: 0 10px;">
+                                        <!-- Cog/Settings Icon SVG - Black -->
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2" style="margin: 0 auto 12px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <div style="font-size: 14px; font-weight: bold; color: #1a1a1a; margin-bottom: 5px;">Expert Support</div>
+                                        <div style="font-size: 12px; color: #666;">Technical assistance</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
                     </tr>
-                  </table>
+                </table>
 
                   <!-- CTA Section -->
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f8f8; margin-top: 40px; border-radius: 10px;">
