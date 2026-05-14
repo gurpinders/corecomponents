@@ -1,26 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export default function LoginPage() {
-    const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    })
+    const [formData, setFormData] = useState({ email: '', password: '' })
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        })
+        setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
     const handleSubmit = async (e) => {
@@ -34,85 +26,81 @@ export default function LoginPage() {
         })
 
         if (signInError) {
-            // Show user-friendly error message
-            if (signInError.message === 'Invalid login credentials') {
-                setError('Invalid email or password. Please try again.')
-            } else {
-                setError(signInError.message)
-            }
+            setError(signInError.message === 'Invalid login credentials'
+                ? 'Invalid email or password. Please try again.'
+                : signInError.message)
             setLoading(false)
             return
         }
 
-        // Success - force full page reload to refresh user state
         window.location.href = '/'
     }
 
     return (
-        <div>
+        <div className="bg-black">
             <Header />
-            <main className="min-h-screen bg-gray-50 py-12">
-                <div className="max-w-md mx-auto px-6">
-                    <div className="bg-white rounded-lg shadow-lg p-8">
-                        <h1 className="text-3xl font-bold mb-2">Customer Login</h1>
-                        <p className="text-gray-600 mb-6">Sign in to see your exclusive pricing</p>
+            <main className="min-h-screen flex items-center justify-center py-12 px-6">
+                <div className="w-full max-w-md">
+
+                    {/* Card */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                        <h1 className="text-3xl font-bold text-white mb-2">Welcome back</h1>
+                        <p className="text-gray-400 mb-8">Sign in to see your exclusive pricing</p>
 
                         {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                            <div className="bg-red-900/50 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6">
                                 {error}
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Email */}
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
-                                <label className="block text-sm font-medium mb-2">Email</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
                                 <input
                                     type="email"
                                     name="email"
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                                    className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white/50"
                                 />
                             </div>
 
-                            {/* Password */}
                             <div>
-                                <label className="block text-sm font-medium mb-2">Password</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Password</label>
                                 <input
                                     type="password"
                                     name="password"
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                                    className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white/50"
                                 />
                             </div>
 
-                            {/* Submit */}
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 disabled:bg-gray-400"
+                                className="w-full bg-white text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-100 disabled:opacity-50 transition-colors"
                             >
                                 {loading ? 'Signing in...' : 'Sign In'}
                             </button>
                         </form>
 
-                        <p className="text-center text-sm text-gray-600 mt-6">
+                        <p className="text-center text-sm text-gray-400 mt-6">
                             Don't have an account?{' '}
-                            <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+                            <Link href="/signup" className="text-white font-semibold hover:text-gray-300 transition-colors">
                                 Sign up now
                             </Link>
                         </p>
 
-                        <p className="text-center text-sm text-gray-500 mt-4">
-                            <Link href="/admin/login" className="hover:underline">
+                        <p className="text-center text-sm text-gray-600 mt-4">
+                            <Link href="/admin/login" className="hover:text-gray-400 transition-colors">
                                 Admin login
                             </Link>
                         </p>
                     </div>
+
                 </div>
             </main>
             <Footer />
