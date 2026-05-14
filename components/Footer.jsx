@@ -3,13 +3,13 @@ import Image from "next/image";
 
 export default function Footer(){
     return(
-        <footer className="bg-gray-900 text-white py-12">
+        <footer className="bg-black text-white py-12">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                     <div>
                         {/* Logo instead of text */}
                         <Image 
-                            src="/logo.png" 
+                            src="/logo_white.png" 
                             alt="CoreComponents Logo" 
                             width={1600} 
                             height={900} 
@@ -33,7 +33,7 @@ export default function Footer(){
                         <p className="text-gray-400 mb-2">Business Hours: Mon - Sat (8AM - 9PM EST)</p>
                     </div> 
                 </div>
-                <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <div className="border-t border-white/10 pt-8 text-center text-gray-400">
                     <p>© 2025 CoreComponents. All rights reserved.</p>
                 </div>
             </div>
