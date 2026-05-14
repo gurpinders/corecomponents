@@ -5,12 +5,12 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 
 const slugMap = {
-    'engine': 'Engine',
-    'rebuilt-engine': 'Rebuilt Engine',
-    'motors': 'Motors',
-    'accessories': 'Accessories',
-    'drivetrain': 'Drivetrain',
-    'fuel-emission': 'Fuel & Emission',
+    'engines': 'Engines',
+    'transmissions': 'Transmissions',
+    'one-box': 'One Box',
+    'ecm-electrical': 'ECM & Electrical',
+    'clutch-actuators': 'Clutch Actuators',
+    'body-accessories': 'Body & Accessories',
 }
 
 export default async function CategoryPage({ params }) {

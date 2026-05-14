@@ -3,12 +3,12 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 const categories = [
-    { name: 'Engine', desc: 'Complete & component engines', slug: 'engine', img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=70' },
-    { name: 'Rebuilt Engine', desc: 'Professionally rebuilt units', slug: 'rebuilt-engine', img: 'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=800&q=70' },
-    { name: 'Motors', desc: 'Starter, alternator & more', slug: 'motors', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=70' },
-    { name: 'Accessories', desc: 'Filters, belts & hardware', slug: 'accessories', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=70' },
-    { name: 'Drivetrain', desc: 'Transmissions, axles & differentials', slug: 'drivetrain', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=70' },
-    { name: 'Fuel & Emission', desc: 'Pumps, injectors & DEF systems', slug: 'fuel-emission', img: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=800&q=70' },
+    { name: 'Engines', desc: 'DD15, Cummins, Volvo, CAT, Paccar', slug: 'engines', img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=70' },
+    { name: 'Transmissions', desc: 'DT12, ATO2612F, 18 Speed Manual', slug: 'transmissions', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=70' },
+    { name: 'One Box', desc: 'Volvo, Cascadia, Cummins, Paccar', slug: 'one-box', img: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=800&q=70' },
+    { name: 'ECM & Electrical', desc: 'ACM, CPC, ABS modules', slug: 'ecm-electrical', img: 'https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?w=800&q=70' },
+    { name: 'Clutch Actuators', desc: 'DT12 and I Shift actuators', slug: 'clutch-actuators', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=70' },
+    { name: 'Body & Accessories', desc: 'Doors, hoods, cab accessories', slug: 'body-accessories', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=70' },
 ]
 
 export default function CatalogPage() {

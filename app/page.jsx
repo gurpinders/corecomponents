@@ -69,12 +69,12 @@ export default async function Home() {
             <p className="text-center text-gray-400 mb-12">Select a category to see what we have in stock</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { name: 'Engine', desc: 'Complete & component engines', img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=70' },
-                { name: 'Rebuilt Engine', desc: 'Professionally rebuilt units', img: 'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=800&q=70' },
-                { name: 'Motors', desc: 'Starter, alternator & more', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=70' },
-                { name: 'Accessories', desc: 'Filters, belts & hardware', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=70' },
-                { name: 'Drivetrain', desc: 'Transmissions, axles & differentials', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=70' },
-                { name: 'Fuel & Emission', desc: 'Pumps, injectors & DEF systems', img: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=800&q=70' },
+                { name: 'Engines', desc: 'DD15, Cummins, Volvo, CAT, Paccar', img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=70' },
+                { name: 'Transmissions', desc: 'DT12, ATO2612F, 18 Speed Manual', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=70' },
+                { name: 'One Box', desc: 'Volvo, Cascadia, Cummins, Paccar', img: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=800&q=70' },
+                { name: 'ECM & Electrical', desc: 'ACM, CPC, ABS modules', img: 'https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?w=800&q=70' },
+                { name: 'Clutch Actuators', desc: 'DT12 and I Shift actuators', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=70' },
+                { name: 'Body & Accessories', desc: 'Doors, hoods, cab accessories', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=70' },
               ].map((cat) => (
                 <Link
                   key={cat.name}

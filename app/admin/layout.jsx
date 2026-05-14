@@ -69,7 +69,7 @@ export default function AdminLayout({ children }) {
                         {/* Logo + Admin Badge */}
                         <Link href="/admin" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
                             <Image
-                                src="/logo-white.JPG"
+                                src="/logo_white.png"
                                 alt="CoreComponents Logo"
                                 width={1600}
                                 height={900}
