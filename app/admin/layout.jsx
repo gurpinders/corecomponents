@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getUser, signOut } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
 
 export default function AdminLayout({ children }) {
     const router = useRouter()
@@ -17,11 +18,30 @@ export default function AdminLayout({ children }) {
 
     const checkAuth = async () => {
         const { user, error } = await getUser()
+
         if (error || !user) {
             if (pathname !== '/admin/login') router.push('/admin/login')
-        } else {
-            setUser(user)
+            setLoading(false)
+            return
         }
+
+        // Check if user's email is in admin_users table
+        const { data: adminUsers } = await supabase
+            .from('admin_users')
+            .select('email')
+            .eq('email', user.email)
+
+        const adminUser = adminUsers?.[0] || null
+
+        if (!adminUser) {
+            // User is logged in but not an admin — sign them out and redirect
+            await signOut()
+            router.push('/admin/login')
+            setLoading(false)
+            return
+        }
+
+        setUser(user)
         setLoading(false)
     }
 
