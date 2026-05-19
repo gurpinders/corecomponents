@@ -2,15 +2,12 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useCart } from '@/lib/CartContext'
 import { supabase } from '@/lib/supabase'
 
 export default function Header(){
-    const router = useRouter()
-    const { getCartCount, user, checkUser, clearCart, cart } = useCart()
-    const cartCount = getCartCount()
+    const { user, checkUser, clearCart } = useCart()
 
     const [categories, setCategories] = useState([])
     const [partsDropdownOpen, setPartsDropdownOpen] = useState(false)
@@ -20,7 +17,6 @@ export default function Header(){
     const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
     const [partsTimeout, setPartsTimeout] = useState(null)
     const [servicesTimeout, setServicesTimeout] = useState(null)
-    const [cartHovered, setCartHovered] = useState(false)
 
     useEffect(() => {
         fetchCategories()
@@ -32,7 +28,6 @@ export default function Header(){
             .select('*')
             .order('name')
             .limit(8)
-        
         if (data) setCategories(data)
     }
 
@@ -43,21 +38,18 @@ export default function Header(){
         window.location.href = '/'
     }
 
-    // Calculate cart total
-    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-
     return(
         <header className="sticky top-0 z-50 bg-black">
             <div className='max-w-7xl mx-auto px-6 py-4'>
-                {/* Desktop & Mobile Header */}
                 <div className='flex items-center justify-between'>
+
                     {/* Logo */}
                     <Link href={"/"}>
-                        <Image 
-                            src="/logo_white.png" 
-                            alt="CoreComponents Logo" 
-                            width={1600} 
-                            height={900} 
+                        <Image
+                            src="/logo_white.png"
+                            alt="CoreComponents Logo"
+                            width={1600}
+                            height={900}
                             className='h-16 md:h-24 w-auto'
                             priority
                         />
@@ -66,130 +58,77 @@ export default function Header(){
                     {/* Desktop Navigation */}
                     <nav className='hidden lg:block'>
                         <ul className='flex gap-8 items-center'>
+
                             <li>
-                                <Link 
-                                    href={"/"} 
-                                    className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group"
-                                >
+                                <Link href={"/"} className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group">
                                     Home
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                             </li>
 
-                            {/* Parts Dropdown - Simple version (not mega menu) */}
-                            <li 
+                            {/* Parts Dropdown */}
+                            <li
                                 className="relative"
-                                onMouseEnter={() => {
-                                    if (partsTimeout) clearTimeout(partsTimeout)
-                                    setPartsDropdownOpen(true)
-                                }}
-                                onMouseLeave={() => {
-                                    const timeout = setTimeout(() => {
-                                        setPartsDropdownOpen(false)
-                                    }, 300)
-                                    setPartsTimeout(timeout)
-                                }}
+                                onMouseEnter={() => { if (partsTimeout) clearTimeout(partsTimeout); setPartsDropdownOpen(true) }}
+                                onMouseLeave={() => { const t = setTimeout(() => setPartsDropdownOpen(false), 300); setPartsTimeout(t) }}
                             >
-                                <Link 
-                                    href={"/catalog"} 
-                                    className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors flex items-center gap-1 group"
-                                >
+                                <Link href={"/catalog"} className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors flex items-center gap-1 group">
                                     Parts
                                     <svg className={`w-4 h-4 transition-transform duration-200 ${partsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
-                                
-                                {/* Parts Dropdown Menu */}
                                 {partsDropdownOpen && (
-                                    <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 animate-scale-in">
-                                        <Link 
-                                            href="/catalog" 
-                                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100 font-medium"
-                                        >
+                                    <div className="absolute top-full left-0 mt-2 w-64 bg-[#111] border border-white/10 rounded-lg shadow-xl py-2">
+                                        <Link href="/catalog" className="block px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 font-medium transition-colors">
                                             Browse All Parts
                                         </Link>
-                                        <div className="border-t border-gray-200 my-2"></div>
-                                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
-                                            Categories
-                                        </div>
+                                        <div className="border-t border-white/10 my-2"></div>
+                                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Categories</div>
                                         {categories.map((category) => (
                                             <Link
                                                 key={category.id}
-                                                href={`/catalog?category=${category.id}`}
-                                                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                href={`/catalog/category/${category.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`}
+                                                className="block px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors"
                                             >
                                                 {category.name}
                                             </Link>
                                         ))}
-                                        {categories.length > 0 && (
-                                            <Link 
-                                                href="/catalog" 
-                                                className="block px-4 py-2 text-blue-600 hover:bg-gray-100 font-medium mt-2 border-t border-gray-200"
-                                            >
-                                                View All Categories →
-                                            </Link>
-                                        )}
                                     </div>
                                 )}
                             </li>
 
                             {/* Trucks */}
                             <li>
-                                <Link 
-                                    href={"/trucks"} 
-                                    className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group"
-                                >
+                                <Link href={"/trucks"} className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group">
                                     Trucks
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                             </li>
 
                             {/* Services Dropdown */}
-                            <li 
+                            <li
                                 className="relative"
-                                onMouseEnter={() => {
-                                    if (servicesTimeout) clearTimeout(servicesTimeout)
-                                    setServicesDropdownOpen(true)
-                                }}
-                                onMouseLeave={() => {
-                                    const timeout = setTimeout(() => {
-                                        setServicesDropdownOpen(false)
-                                    }, 300)
-                                    setServicesTimeout(timeout)
-                                }}
+                                onMouseEnter={() => { if (servicesTimeout) clearTimeout(servicesTimeout); setServicesDropdownOpen(true) }}
+                                onMouseLeave={() => { const t = setTimeout(() => setServicesDropdownOpen(false), 300); setServicesTimeout(t) }}
                             >
-                                <Link
-                                    href="/services"
-                                    className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors flex items-center gap-1 group"
-                                >
+                                <Link href="/services" className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors flex items-center gap-1 group">
                                     Services
                                     <svg className={`w-4 h-4 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
-                                
-                                {/* Services Dropdown Menu */}
                                 {servicesDropdownOpen && (
-                                    <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 animate-scale-in">
-                                        <Link 
-                                            href="/request-part" 
-                                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                        >
+                                    <div className="absolute top-full left-0 mt-2 w-56 bg-[#111] border border-white/10 rounded-lg shadow-xl py-2">
+                                        <Link href="/services#request-a-part" className="block px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors">
                                             Request a Part
                                         </Link>
-                                        <Link 
-                                            href="/shipping" 
-                                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                        >
+                                        <Link href="/services#shipping" className="block px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors">
                                             Shipping Information
                                         </Link>
-                                        <Link 
-                                            href="/warranty" 
-                                            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                        >
+                                        <Link href="/services#warranty" className="block px-4 py-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors">
                                             Warranty & Returns
                                         </Link>
                                     </div>
@@ -197,19 +136,14 @@ export default function Header(){
                             </li>
 
                             <li>
-                                <Link 
-                                    href={"/about"} 
-                                    className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group"
-                                >
+                                <Link href={"/about"} className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group">
                                     About
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
                             </li>
+
                             <li>
-                                <Link 
-                                    href={"/contact"} 
-                                    className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group"
-                                >
+                                <Link href={"/contact"} className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group">
                                     Contact
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
@@ -219,19 +153,13 @@ export default function Header(){
                             {user ? (
                                 <>
                                     <li>
-                                        <Link 
-                                            href="/account" 
-                                            className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group"
-                                        >
+                                        <Link href="/account" className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group">
                                             Account
                                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                         </Link>
                                     </li>
                                     <li>
-                                        <button
-                                            onClick={handleLogout}
-                                            className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group"
-                                        >
+                                        <button onClick={handleLogout} className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group">
                                             Logout
                                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                         </button>
@@ -240,102 +168,25 @@ export default function Header(){
                             ) : (
                                 <>
                                     <li>
-                                        <Link 
-                                            href="/login" 
-                                            className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group"
-                                        >
+                                        <Link href="/login" className="relative text-white/80 hover:text-white font-semibold text-lg transition-colors group">
                                             Login
                                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link 
-                                            href="/signup" 
-                                            className="bg-navy text-white px-4 py-2 rounded-lg font-semibold hover:bg-navy-light transition-all transform hover:scale-105"
-                                        >
+                                        <Link href="/signup" className="bg-navy text-white px-4 py-2 rounded-lg font-semibold hover:bg-navy-light transition-all transform hover:scale-105">
                                             Sign Up
                                         </Link>
                                     </li>
                                 </>
                             )}
 
-                            {/* Cart Icon with Preview */}
-                            <li 
-                                className="relative"
-                                onMouseEnter={() => setCartHovered(true)}
-                                onMouseLeave={() => setCartHovered(false)}
-                            >
-                                <Link href="/cart" className="relative group">
-                                    <svg className="w-6 h-6 transform group-hover:scale-110 transition-transform text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    {cartCount > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                            {cartCount}
-                                        </span>
-                                    )}
-                                </Link>
-
-                                {/* Cart Preview Dropdown */}
-                                {cartHovered && cartCount > 0 && (
-                                    <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 p-4 animate-scale-in">
-                                        <h3 className="font-bold text-gray-900 mb-3 pb-2 border-b">Your Cart ({cartCount} {cartCount === 1 ? 'item' : 'items'})</h3>
-                                        <div className="space-y-3 max-h-64 overflow-y-auto mb-3">
-                                            {cart.map((item) => (
-                                                <div key={item.id} className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
-                                                    <div className="flex-1">
-                                                        <p className="font-medium text-sm">{item.name}</p>
-                                                        <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                                                    </div>
-                                                    <p className="font-semibold text-sm">${(item.price * item.quantity).toFixed(2)}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="border-t pt-3 mb-3">
-                                            <div className="flex justify-between font-bold text-lg">
-                                                <span>Total:</span>
-                                                <span>${cartTotal.toFixed(2)}</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Link 
-                                                href="/cart" 
-                                                className="flex-1 bg-gray-200 text-gray-800 text-center py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-                                            >
-                                                View Cart
-                                            </Link>
-                                            <Link 
-                                                href="/request-quote" 
-                                                className="flex-1 bg-black text-white text-center py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
-                                            >
-                                                Get Quote
-                                            </Link>
-                                        </div>
-                                    </div>
-                                )}
-                            </li>
                         </ul>
                     </nav>
 
-                    {/* Mobile: Cart + Hamburger Menu */}
-                    <div className="lg:hidden flex items-center gap-4">
-                        {/* Cart Icon */}
-                        <Link href="/cart" className="relative">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            {cartCount > 0 && (
-                                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </Link>
-
-                        {/* Hamburger Menu Button */}
-                        <button 
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="p-2"
-                        >
+                    {/* Mobile: Hamburger */}
+                    <div className="lg:hidden flex items-center">
+                        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2">
                             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {mobileMenuOpen ? (
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -351,20 +202,13 @@ export default function Header(){
                 {mobileMenuOpen && (
                     <div className="lg:hidden mt-4 pb-4 border-t border-white/10 pt-4">
                         <nav className="space-y-1">
-                            <Link 
-                                href="/" 
-                                className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
+                            <Link href="/" className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium" onClick={() => setMobileMenuOpen(false)}>
                                 Home
                             </Link>
 
                             {/* Parts Expandable */}
                             <div>
-                                <button
-                                    onClick={() => setMobilePartsOpen(!mobilePartsOpen)}
-                                    className="w-full flex items-center justify-between py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium"
-                                >
+                                <button onClick={() => setMobilePartsOpen(!mobilePartsOpen)} className="w-full flex items-center justify-between py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium">
                                     <span>Parts</span>
                                     <svg className={`w-4 h-4 transition-transform ${mobilePartsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -372,17 +216,13 @@ export default function Header(){
                                 </button>
                                 {mobilePartsOpen && (
                                     <div className="ml-4 mt-1 space-y-1">
-                                        <Link 
-                                            href="/catalog" 
-                                            className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
+                                        <Link href="/catalog" className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                                             Browse All Parts
                                         </Link>
                                         {categories.map((category) => (
                                             <Link
                                                 key={category.id}
-                                                href={`/catalog?category=${category.id}`}
+                                                href={`/catalog/category/${category.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`}
                                                 className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg"
                                                 onClick={() => setMobileMenuOpen(false)}
                                             >
@@ -393,20 +233,13 @@ export default function Header(){
                                 )}
                             </div>
 
-                            <Link 
-                                href="/trucks" 
-                                className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
+                            <Link href="/trucks" className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium" onClick={() => setMobileMenuOpen(false)}>
                                 Trucks
                             </Link>
 
                             {/* Services Expandable */}
                             <div>
-                                <button
-                                    onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                                    className="w-full flex items-center justify-between py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium"
-                                >
+                                <button onClick={() => setMobileServicesOpen(!mobileServicesOpen)} className="w-full flex items-center justify-between py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium">
                                     <span>Services</span>
                                     <svg className={`w-4 h-4 transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -414,79 +247,44 @@ export default function Header(){
                                 </button>
                                 {mobileServicesOpen && (
                                     <div className="ml-4 mt-1 space-y-1">
-                                        <Link 
-                                            href="/request-part" 
-                                            className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
+                                        <Link href="/services#request-a-part" className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                                             Request a Part
                                         </Link>
-                                        <Link 
-                                            href="/shipping" 
-                                            className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
+                                        <Link href="/services#shipping" className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                                             Shipping Information
                                         </Link>
-                                        <Link 
-                                            href="/warranty" 
-                                            className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                        >
+                                        <Link href="/services#warranty" className="block py-2 px-3 text-sm text-white/60 hover:bg-white/10 rounded-lg" onClick={() => setMobileMenuOpen(false)}>
                                             Warranty & Returns
                                         </Link>
                                     </div>
                                 )}
                             </div>
 
-                            <Link 
-                                href="/about" 
-                                className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
+                            <Link href="/about" className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium" onClick={() => setMobileMenuOpen(false)}>
                                 About
                             </Link>
-                            <Link 
-                                href="/contact" 
-                                className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
+                            <Link href="/contact" className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium" onClick={() => setMobileMenuOpen(false)}>
                                 Contact
                             </Link>
-                            
+
                             {user ? (
                                 <>
-                                    <Link 
-                                        href="/account" 
-                                        className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                    >
+                                    <Link href="/account" className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium" onClick={() => setMobileMenuOpen(false)}>
                                         Account
                                     </Link>
-                                    <button 
-                                        onClick={() => {
-                                            handleLogout()
-                                            setMobileMenuOpen(false)
-                                        }} 
-                                        className="block py-2 px-3 text-gray-700 hover:bg-gray-100 rounded-lg font-medium w-full text-left"
+                                    <button
+                                        onClick={() => { handleLogout(); setMobileMenuOpen(false) }}
+                                        className="block py-2 px-3 text-white/80 hover:bg-white/10 rounded-lg font-medium w-full text-left"
                                     >
                                         Logout
                                     </button>
                                 </>
                             ) : (
                                 <div className="flex gap-2 px-3 pt-2">
-                                    <Link 
-                                        href="/login" 
-                                        className="flex-1 py-2 text-center border-2 border-white text-white rounded-lg font-semibold hover:bg-white/10"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                    >
+                                    <Link href="/login" className="flex-1 py-2 text-center border-2 border-white text-white rounded-lg font-semibold hover:bg-white/10" onClick={() => setMobileMenuOpen(false)}>
                                         Login
                                     </Link>
-                                    <Link 
-                                        href="/signup" 
-                                        className="flex-1 py-2 text-center bg-black text-white rounded-lg font-semibold hover:bg-gray-800"
-                                        onClick={() => setMobileMenuOpen(false)}
-                                    >
+                                    <Link href="/signup" className="flex-1 py-2 text-center bg-navy text-white rounded-lg font-semibold hover:bg-navy-light" onClick={() => setMobileMenuOpen(false)}>
                                         Sign Up
                                     </Link>
                                 </div>
@@ -496,7 +294,7 @@ export default function Header(){
                 )}
             </div>
 
-            {/* Promotional Bar - Navy Blue (MOBILE OPTIMIZED) */}
+            {/* Promotional Bar */}
             <div className="bg-[#001f54] text-white py-2 md:py-4 text-center">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-8">

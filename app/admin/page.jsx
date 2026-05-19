@@ -276,29 +276,6 @@ export default function AdminDashboard() {
                 {/* Analytics Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
 
-                    {/* Quote Pipeline */}
-                    <div className={cardClass}>
-                        <h3 className="text-xl font-bold text-white mb-4">Quote Pipeline</h3>
-                        <div className="space-y-3">
-                            {[
-                                { label: 'New', value: quoteBreakdown.new, color: 'bg-blue-500' },
-                                { label: 'Contacted', value: quoteBreakdown.contacted, color: 'bg-yellow-500' },
-                                { label: 'Quoted', value: quoteBreakdown.quoted, color: 'bg-purple-500' },
-                                { label: 'Closed', value: quoteBreakdown.closed, color: 'bg-green-500' },
-                            ].map((item) => (
-                                <div key={item.label}>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="text-sm text-gray-400">{item.label}</span>
-                                        <span className="font-bold text-white">{item.value}</span>
-                                    </div>
-                                    <div className="w-full bg-white/10 rounded-full h-2">
-                                        <div className={`${item.color} h-2 rounded-full`} style={{ width: `${(item.value / metrics.totalQuotes * 100) || 0}%` }}></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Customer Growth */}
                     <div className={cardClass}>
                         <h3 className="text-xl font-bold text-white mb-4">Customer Growth</h3>
@@ -392,34 +369,6 @@ export default function AdminDashboard() {
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString()}</span>
                                             <span className="font-bold text-white text-sm">${order.total.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Recent Quotes */}
-                    <div className={cardClass}>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold text-white">Recent Quotes</h3>
-                            <Link href="/admin/quotes" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">View All →</Link>
-                        </div>
-                        {recentQuotes.length === 0 ? (
-                            <p className="text-gray-500 text-sm">No quote requests yet</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {recentQuotes.map((quote) => (
-                                    <div key={quote.id} className="border-b border-white/10 pb-3 last:border-b-0">
-                                        <p className="font-medium text-white text-sm">{quote.customer_name}</p>
-                                        <p className="text-xs text-gray-400 mt-1">{quote.message || 'No message'}</p>
-                                        <div className="flex justify-between items-center mt-2">
-                                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                                quote.status === 'new' ? 'bg-blue-900/50 text-blue-400' :
-                                                quote.status === 'contacted' ? 'bg-yellow-900/50 text-yellow-400' :
-                                                'bg-green-900/50 text-green-400'
-                                            }`}>{quote.status}</span>
-                                            <span className="text-xs text-gray-500">{new Date(quote.created_at).toLocaleDateString()}</span>
                                         </div>
                                     </div>
                                 ))}

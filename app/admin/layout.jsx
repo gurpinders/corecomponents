@@ -73,7 +73,6 @@ export default function AdminLayout({ children }) {
         { href: '/admin/parts', label: 'Parts', match: (path) => path.startsWith('/admin/parts') },
         { href: '/admin/trucks', label: 'Trucks', match: (path) => path.startsWith('/admin/trucks') },
         { href: '/admin/customers', label: 'Customers', match: (path) => path.startsWith('/admin/customers') },
-        { href: '/admin/quotes', label: 'Quotes', match: (path) => path.startsWith('/admin/quotes') },
         { href: '/admin/campaigns', label: 'Campaigns', match: (path) => path.startsWith('/admin/campaigns') },
         { href: '/admin/categories', label: 'Categories', match: (path) => path.startsWith('/admin/categories') },
     ]
