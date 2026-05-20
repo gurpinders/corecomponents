@@ -33,7 +33,7 @@ export default function CatalogPage() {
                                 <Link
                                     key={cat.slug}
                                     href={`/catalog/category/${cat.slug}`}
-                                    className="relative rounded-xl overflow-hidden h-64 block group"
+                                    className="relative rounded-xl overflow-hidden h-64 block group transition-transform duration-300 hover:-translate-y-2"
                                 >
                                     <img
                                         src={cat.img}

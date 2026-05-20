@@ -5,6 +5,22 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AdminProtection from '@/components/AdminProtection'
 
+function CountUp({ target, duration = 1200, prefix = '', decimals = 0 }) {
+    const [count, setCount] = useState(0)
+    useEffect(() => {
+        if (target === 0) return
+        let start = 0
+        const step = target / (duration / 16)
+        const timer = setInterval(() => {
+            start = Math.min(start + step, target)
+            setCount(start)
+            if (start >= target) clearInterval(timer)
+        }, 16)
+        return () => clearInterval(timer)
+    }, [target, duration])
+    return <>{prefix}{decimals > 0 ? count.toFixed(decimals) : Math.round(count)}</>
+}
+
 export default function AdminDashboard() {
     const [loading, setLoading] = useState(true)
     const [metrics, setMetrics] = useState({
@@ -14,12 +30,10 @@ export default function AdminDashboard() {
         totalRevenue: 0, totalOrders: 0, avgOrderValue: 0,
         revenueThisMonth: 0, ordersThisMonth: 0
     })
-    const [recentQuotes, setRecentQuotes] = useState([])
     const [recentCampaigns, setRecentCampaigns] = useState([])
     const [recentOrders, setRecentOrders] = useState([])
     const [topProducts, setTopProducts] = useState([])
     const [lowStockParts, setLowStockParts] = useState([])
-    const [quoteBreakdown, setQuoteBreakdown] = useState({ new: 0, contacted: 0, quoted: 0, closed: 0 })
     const [campaignPerformance, setCampaignPerformance] = useState([])
 
     useEffect(() => { fetchAllData() }, [])
@@ -28,7 +42,7 @@ export default function AdminDashboard() {
         await Promise.all([
             fetchMetrics(), fetchRevenueData(), fetchRecentActivity(),
             fetchRecentOrders(), fetchTopProducts(), fetchLowStockParts(),
-            fetchQuoteBreakdown(), fetchCampaignPerformance(), fetchCustomerGrowth()
+            fetchCampaignPerformance(), fetchCustomerGrowth()
         ])
         setLoading(false)
     }
@@ -66,8 +80,6 @@ export default function AdminDashboard() {
     }
 
     const fetchRecentActivity = async () => {
-        const { data: quotes } = await supabase.from('quote_requests').select('*').order('created_at', { ascending: false }).limit(5)
-        if (quotes) setRecentQuotes(quotes)
         const { data: campaigns } = await supabase.from('email_campaigns').select('*').order('created_at', { ascending: false }).limit(5)
         if (campaigns) setRecentCampaigns(campaigns)
     }
@@ -95,18 +107,6 @@ export default function AdminDashboard() {
         const { data: parts } = await supabase.from('parts').select('id, name, sku, stock_status')
             .or('stock_status.eq.low_stock,stock_status.eq.out_of_stock').order('stock_status', { ascending: false }).limit(5)
         if (parts) setLowStockParts(parts)
-    }
-
-    const fetchQuoteBreakdown = async () => {
-        const { data: quotes } = await supabase.from('quote_requests').select('status')
-        if (quotes) {
-            setQuoteBreakdown({
-                new: quotes.filter(q => q.status === 'new').length,
-                contacted: quotes.filter(q => q.status === 'contacted').length,
-                quoted: quotes.filter(q => q.status === 'quoted').length,
-                closed: quotes.filter(q => q.status === 'closed').length
-            })
-        }
     }
 
     const fetchCampaignPerformance = async () => {
@@ -177,23 +177,25 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div className="bg-green-900/30 border border-green-500/30 rounded-xl p-6">
                         <p className="text-sm text-green-400 mb-1">Total Revenue</p>
-                        <p className="text-3xl font-bold text-white">${metrics.totalRevenue.toFixed(2)}</p>
+                        <p className="text-3xl font-bold text-white">
+                            $<CountUp target={metrics.totalRevenue} decimals={2} />
+                        </p>
                         <p className="text-sm text-green-400/60 mt-2">All completed orders</p>
                     </div>
                     <div className={cardClass}>
                         <p className={labelClass}>Total Orders</p>
-                        <p className={valueClass}>{metrics.totalOrders}</p>
-                        <p className={subClass}>{metrics.ordersThisMonth} this month</p>
+                        <p className={valueClass}><CountUp target={metrics.totalOrders} /></p>
+                        <p className={subClass}><CountUp target={metrics.ordersThisMonth} /> this month</p>
                     </div>
                     <div className={cardClass}>
                         <p className={labelClass}>Avg Order Value</p>
-                        <p className={valueClass}>${metrics.avgOrderValue.toFixed(2)}</p>
+                        <p className={valueClass}>$<CountUp target={metrics.avgOrderValue} decimals={2} /></p>
                         <p className={subClass}>Per completed order</p>
                     </div>
                     <div className={cardClass}>
                         <p className={labelClass}>This Month</p>
-                        <p className={valueClass}>${metrics.revenueThisMonth.toFixed(2)}</p>
-                        <p className={subClass}>{metrics.ordersThisMonth} orders</p>
+                        <p className={valueClass}>$<CountUp target={metrics.revenueThisMonth} decimals={2} /></p>
+                        <p className={subClass}><CountUp target={metrics.ordersThisMonth} /> orders</p>
                     </div>
                 </div>
 
@@ -201,24 +203,24 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div className={cardClass}>
                         <p className={labelClass}>Inventory</p>
-                        <p className={valueClass}>{metrics.totalParts + metrics.totalTrucks}</p>
-                        <p className={subClass}>{metrics.totalParts} parts · {metrics.totalTrucks} trucks</p>
+                        <p className={valueClass}><CountUp target={metrics.totalParts + metrics.totalTrucks} /></p>
+                        <p className={subClass}><CountUp target={metrics.totalParts} /> parts · <CountUp target={metrics.totalTrucks} /> trucks</p>
                     </div>
                     <div className={cardClass}>
                         <p className={labelClass}>Customers</p>
-                        <p className={valueClass}>{metrics.totalCustomers}</p>
-                        <p className={subClass}>{metrics.subscribedCustomers} subscribed</p>
+                        <p className={valueClass}><CountUp target={metrics.totalCustomers} /></p>
+                        <p className={subClass}><CountUp target={metrics.subscribedCustomers} /> subscribed</p>
                     </div>
                     <div className={cardClass}>
                         <p className={labelClass}>Quote Requests</p>
-                        <p className={valueClass}>{metrics.totalQuotes}</p>
+                        <p className={valueClass}><CountUp target={metrics.totalQuotes} /></p>
                         {metrics.newQuotes > 0 && (
                             <p className="text-sm text-red-400 font-medium mt-2">⚠️ {metrics.newQuotes} need attention</p>
                         )}
                     </div>
                     <div className={cardClass}>
                         <p className={labelClass}>Email Campaigns</p>
-                        <p className={valueClass}>{metrics.totalCampaigns}</p>
+                        <p className={valueClass}><CountUp target={metrics.totalCampaigns} /></p>
                         <Link href="/admin/campaigns" className="text-sm text-blue-400 hover:text-blue-300 mt-2 inline-block transition-colors">
                             Manage →
                         </Link>
@@ -235,11 +237,8 @@ export default function AdminDashboard() {
                             { href: '/admin/campaigns/new', label: '+ Create Campaign' },
                             { href: '/admin/orders', label: 'View Orders' },
                         ].map((action) => (
-                            <Link
-                                key={action.href}
-                                href={action.href}
-                                className="bg-white text-black px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-100 transition-colors"
-                            >
+                            <Link key={action.href} href={action.href}
+                                className="bg-white text-black px-6 py-4 rounded-lg text-center font-medium hover:bg-gray-100 transition-colors">
                                 {action.label}
                             </Link>
                         ))}
@@ -250,10 +249,8 @@ export default function AdminDashboard() {
                 {lowStockParts.length > 0 && (
                     <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-6 mb-8">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-red-400 flex items-center gap-2">⚠️ Low Stock Alerts</h3>
-                            <Link href="/admin/parts" className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors">
-                                Manage Inventory →
-                            </Link>
+                            <h3 className="text-xl font-bold text-red-400">⚠️ Low Stock Alerts</h3>
+                            <Link href="/admin/parts" className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors">Manage Inventory →</Link>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {lowStockParts.map((part) => (
@@ -261,9 +258,7 @@ export default function AdminDashboard() {
                                     <p className="font-medium text-white text-sm">{part.name}</p>
                                     <p className="text-xs text-gray-400 mt-1">SKU: {part.sku}</p>
                                     <span className={`inline-block mt-2 px-2 py-1 rounded text-xs font-bold ${
-                                        part.stock_status === 'out_of_stock'
-                                            ? 'bg-red-900/50 text-red-400'
-                                            : 'bg-yellow-900/50 text-yellow-400'
+                                        part.stock_status === 'out_of_stock' ? 'bg-red-900/50 text-red-400' : 'bg-yellow-900/50 text-yellow-400'
                                     }`}>
                                         {part.stock_status === 'out_of_stock' ? 'OUT OF STOCK' : 'LOW STOCK'}
                                     </span>
@@ -274,19 +269,17 @@ export default function AdminDashboard() {
                 )}
 
                 {/* Analytics Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-
-                    {/* Customer Growth */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                     <div className={cardClass}>
                         <h3 className="text-xl font-bold text-white mb-4">Customer Growth</h3>
                         <div className="space-y-4">
                             <div>
                                 <p className="text-sm text-gray-400 mb-1">This Month</p>
-                                <p className="text-3xl font-bold text-white">{metrics.customersThisMonth}</p>
+                                <p className="text-3xl font-bold text-white"><CountUp target={metrics.customersThisMonth} /></p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-400 mb-1">Last Month</p>
-                                <p className="text-xl font-medium text-gray-300">{metrics.customersLastMonth}</p>
+                                <p className="text-xl font-medium text-gray-300"><CountUp target={metrics.customersLastMonth} /></p>
                             </div>
                             <div className={`text-sm font-medium ${customerGrowth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                 {customerGrowth >= 0 ? '↑' : '↓'} {Math.abs(customerGrowth)} customers ({growthPercentage}%)
@@ -294,7 +287,6 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    {/* Top Products */}
                     <div className={cardClass}>
                         <h3 className="text-xl font-bold text-white mb-4">Top Selling Products</h3>
                         {topProducts.length === 0 ? (
@@ -342,10 +334,8 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
-                {/* Three Column Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* Recent Orders */}
+                {/* Bottom Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className={cardClass}>
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold text-white">Recent Orders</h3>
@@ -362,8 +352,7 @@ export default function AdminDashboard() {
                                             <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                                                 order.status === 'completed' ? 'bg-green-900/50 text-green-400' :
                                                 order.status === 'processing' ? 'bg-blue-900/50 text-blue-400' :
-                                                order.status === 'pending' ? 'bg-yellow-900/50 text-yellow-400' :
-                                                'bg-white/10 text-gray-400'
+                                                'bg-yellow-900/50 text-yellow-400'
                                             }`}>{order.status}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
@@ -376,7 +365,6 @@ export default function AdminDashboard() {
                         )}
                     </div>
 
-                    {/* Recent Campaigns */}
                     <div className={cardClass}>
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold text-white">Recent Campaigns</h3>
@@ -403,7 +391,6 @@ export default function AdminDashboard() {
                             </div>
                         )}
                     </div>
-
                 </div>
             </main>
         </AdminProtection>

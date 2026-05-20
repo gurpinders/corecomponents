@@ -2,6 +2,8 @@ import Link from "next/link";
 import Header from "@/components/Header.jsx";
 import Footer from "@/components/Footer.jsx";
 import Image from "next/image";
+import HeroButtons from '@/components/HeroButtons'
+import HeroHeading from '@/components/HeroHeading'
 import { supabase } from "@/lib/supabase";
 import { generateMetadata as generateMeta } from '@/lib/seo'
 
@@ -17,6 +19,10 @@ export default async function Home() {
     .select("*")
     .eq("featured", true)
     .limit(4);
+
+  const { count: partCount } = await supabase
+    .from("parts")
+    .select("id", { count: 'exact', head: true })
 
   return (
     <div className="bg-black">
@@ -38,26 +44,11 @@ export default async function Home() {
           <div className="absolute inset-0 bg-black/50 z-10"></div>
           <div className="max-w-7xl mx-auto px-6 relative z-20">
             <div className="max-w-3xl">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight drop-shadow-lg">
-                Professional Trucking Parts & Components
-              </h1>
+              <HeroHeading />
               <p className="text-xl md:text-2xl mb-8 text-gray-100 drop-shadow-md">
                 Quality parts for your fleet since 2020. Competitive pricing, fast delivery, expert service.
               </p>
-              <div className="flex gap-4">
-                <Link
-                    href="/catalog"
-                    className="bg-white text-black px-6 py-3 rounded-lg text-base font-bold hover:bg-gray-100 transition-colors whitespace-nowrap"
-                >
-                    Browse Parts →
-                </Link>
-                <Link
-                    href="/trucks"
-                    className="border-2 border-white text-white px-6 py-3 rounded-lg text-base font-bold hover:bg-white/10 transition-colors whitespace-nowrap"
-                >
-                    View Trucks
-                </Link>
-              </div>
+              <HeroButtons partCount={partCount || 0} />
             </div>
           </div>
         </section>
