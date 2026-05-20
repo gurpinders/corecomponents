@@ -27,7 +27,7 @@ export default async function Home() {
         <section className="relative bg-black text-white py-32 overflow-hidden">
           <div className="absolute inset-0 z-0">
             <Image
-              src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/hero_background.png"
+              src="https://gsadmhqpzhkmgmcvxbdi.supabase.co/storage/v1/object/public/product-images/hero_background.webp"
               alt="CoreComponents Background"
               fill
               className="object-cover opacity-70"
