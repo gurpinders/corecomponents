@@ -28,6 +28,7 @@ export const metadata = {
   description: "Your trusted source for automotive and trucking parts",
   other: {
     'format-detection': 'telephone=no',
+    'google-site-verification': '4-X4I2B-yE1xcV3-M9KFYgLd6uim6jsatXiZoZgy',
   }
 };
 
