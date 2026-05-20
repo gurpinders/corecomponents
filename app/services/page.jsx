@@ -65,9 +65,9 @@ export default function ServicesPage() {
                                         { label: 'Pickup', value: 'Available at our Brampton location' },
                                         { label: 'Hours', value: 'Mon–Fri 8AM–6PM, Sat 9AM–4PM' },
                                     ].map((item) => (
-                                        <div key={item.label} className="flex justify-between items-center border-b border-white/10 pb-2">
-                                            <span className="text-gray-400 text-sm">{item.label}</span>
-                                            <span className="text-white text-sm font-medium">{item.value}</span>
+                                        <div key={item.label} className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-white/10 pb-3 gap-1">
+                                            <span className="text-gray-400 text-sm font-medium">{item.label}</span>
+                                            <span className="text-white text-sm">{item.value}</span>
                                         </div>
                                     ))}
                                 </div>

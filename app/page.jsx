@@ -46,16 +46,16 @@ export default async function Home() {
               </p>
               <div className="flex gap-4">
                 <Link
-                  href="/catalog"
-                  className="bg-white text-black px-8 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition-colors"
+                    href="/catalog"
+                    className="bg-white text-black px-6 py-3 rounded-lg text-base font-bold hover:bg-gray-100 transition-colors whitespace-nowrap"
                 >
-                  Browse Parts →
+                    Browse Parts →
                 </Link>
                 <Link
-                  href="/trucks"
-                  className="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-white/10 transition-colors"
+                    href="/trucks"
+                    className="border-2 border-white text-white px-6 py-3 rounded-lg text-base font-bold hover:bg-white/10 transition-colors whitespace-nowrap"
                 >
-                  View Trucks
+                    View Trucks
                 </Link>
               </div>
             </div>

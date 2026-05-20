@@ -26,6 +26,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "CoreComponents",
   description: "Your trusted source for automotive and trucking parts",
+  other: {
+    'format-detection': 'telephone=no',
+  }
 };
 
 export default function RootLayout({ children }) {
