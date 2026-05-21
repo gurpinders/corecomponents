@@ -77,12 +77,14 @@ export async function POST(request) {
     for (let i = 0; i < recipients.length; i += batchSize) {
       const batch = recipients.slice(i, i + batchSize);
 
-      await resend.emails.send({
-        from: "CoreComponents <info@ccomponents.ca>",
-        to: batch,
-        subject: subject,
-        html: html,
-      });
+      for (const email of batch) {
+        await resend.emails.send({
+          from: "CoreComponents <info@ccomponents.ca>",
+          to: [email],
+          subject: subject,
+          html: html,
+        });
+      }
 
       totalSent += batch.length;
     }

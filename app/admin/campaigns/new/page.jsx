@@ -62,7 +62,7 @@ export default function NewCampaignPage() {
         const { error } = await supabase.from('email_campaigns').insert([{
             campaign_name: subject,
             subject: subject,
-            content: promoMessage,
+            headline: promoMessage,
             status: 'draft',
             recipients: 0
         }])
@@ -83,8 +83,8 @@ export default function NewCampaignPage() {
             .insert([{
                 campaign_name: subject,
                 subject: subject,
-                content: promoMessage,
-                status: 'sending',
+                headline: promoMessage,
+                status: 'draft',
                 recipients: 0
             }])
             .select()
