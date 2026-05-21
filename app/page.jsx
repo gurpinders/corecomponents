@@ -60,16 +60,16 @@ export default async function Home() {
             <p className="text-center text-gray-400 mb-12">Select a category to see what we have in stock</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { name: 'Engines', desc: 'DD15, Cummins, Volvo, CAT, Paccar', img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=70' },
-                { name: 'Transmissions', desc: 'DT12, ATO2612F, 18 Speed Manual', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=70' },
-                { name: 'One Box', desc: 'Volvo, Cascadia, Cummins, Paccar', img: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=800&q=70' },
-                { name: 'ECM & Electrical', desc: 'ACM, CPC, ABS modules', img: 'https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?w=800&q=70' },
-                { name: 'Clutch Actuators', desc: 'DT12 and I Shift actuators', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=70' },
-                { name: 'Body & Accessories', desc: 'Doors, hoods, cab accessories', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=70' },
+                { name: 'Engines', desc: 'DD15, Cummins, Volvo, CAT, Paccar', slug: 'engines', img: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=70' },
+                { name: 'Transmissions', desc: 'DT12, ATO2612F, 18 Speed Manual', slug: 'transmissions', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=70' },
+                { name: 'One Box', desc: 'Volvo, Cascadia, Cummins, Paccar', slug: 'one-box', img: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=800&q=70' },
+                { name: 'ECM & Electrical', desc: 'ACM, CPC, ABS modules', slug: 'ecm-electrical', img: 'https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?w=800&q=70' },
+                { name: 'Clutch Actuators', desc: 'DT12 and I Shift actuators', slug: 'clutch-actuators', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=70' },
+                { name: 'Body & Accessories', desc: 'Doors, hoods, cab accessories', slug: 'body-accessories', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=70' },
               ].map((cat) => (
                 <Link
                   key={cat.name}
-                  href="/catalog"
+                  href={`/catalog/category/${cat.slug}`}
                   className="relative rounded-xl overflow-hidden h-52 block group"
                 >
                   <img
@@ -137,9 +137,10 @@ export default async function Home() {
             <p className="text-center text-gray-400 mb-12">A selection of what we currently have in stock</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {products?.map((product) => (
-                <div
+                <Link
                   key={product.id}
-                  className="bg-white/5 rounded-lg border border-white/10 overflow-hidden hover:border-white/30 hover:-translate-y-1 transition-all duration-200"
+                  href={`/catalog/${product.id}`}
+                  className="bg-white/5 rounded-lg border border-white/10 overflow-hidden hover:border-white/30 hover:-translate-y-1 transition-all duration-200 block"
                 >
                   {product.images && product.images[0] ? (
                     <Image
@@ -156,9 +157,6 @@ export default async function Home() {
                   )}
                   <div className="p-4">
                     <h3 className="text-lg font-bold text-white mb-2">{product.name}</h3>
-                    <p className="text-lg font-semibold text-gray-300 mb-2">
-                      Starting from ${product.price}
-                    </p>
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
                       product.stock_status === "in_stock"
                         ? "bg-green-900/50 text-green-400"
@@ -173,7 +171,7 @@ export default async function Home() {
                         : "Out of Stock"}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
