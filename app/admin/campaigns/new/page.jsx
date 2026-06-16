@@ -153,11 +153,18 @@ export default function NewCampaignPage() {
 
             const pagesHTML = generateFlyerPages({ promoMessage, categorizedParts })
 
+            const PAGE_WIDTH = 816
+            const PAGE_HEIGHT = 1056
             const scale = 2
-            const canvases = []
 
-            for (const pageHtml of pagesHTML) {
-                pdfRef.current.innerHTML = pageHtml
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [PAGE_WIDTH, PAGE_HEIGHT]
+            })
+
+            for (let i = 0; i < pagesHTML.length; i++) {
+                pdfRef.current.innerHTML = pagesHTML[i]
 
                 const images = pdfRef.current.querySelectorAll('img')
                 await Promise.all(Array.from(images).map(img => {
@@ -173,31 +180,17 @@ export default function NewCampaignPage() {
                 const canvas = await html2canvas(pdfRef.current, {
                     backgroundColor: '#0a0a0a',
                     scale,
+                    width: PAGE_WIDTH,
+                    height: PAGE_HEIGHT,
                     useCORS: true,
                 })
 
-                canvases.push(canvas)
-            }
-
-            const firstWidth = canvases[0].width / scale
-            const firstHeight = canvases[0].height / scale
-
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'px',
-                format: [firstWidth, firstHeight]
-            })
-
-            canvases.forEach((canvas, index) => {
-                const pageWidth = canvas.width / scale
-                const pageHeight = canvas.height / scale
-
-                if (index > 0) {
-                    pdf.addPage([pageWidth, pageHeight], 'portrait')
+                if (i > 0) {
+                    pdf.addPage()
                 }
 
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, pageHeight)
-            })
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, PAGE_WIDTH, PAGE_HEIGHT)
+            }
 
             pdf.save(`corecomponents-flyer-${Date.now()}.pdf`)
         } catch (err) {
@@ -368,7 +361,7 @@ export default function NewCampaignPage() {
             </main>
 
             {/* Hidden container used only to render flyer pages for PDF capture */}
-            <div ref={pdfRef} style={{ position: 'fixed', top: 0, left: '-9999px', width: '800px' }}></div>
+            <div ref={pdfRef} style={{ position: 'fixed', top: 0, left: '-9999px', width: '816px' }}></div>
         </AdminProtection>
     )
 }
