@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AdminProtection from '@/components/AdminProtection'
 import { useToast } from '@/lib/ToastContext'
+import { generateCampaignEmail } from '@/lib/emailTemplate'
 
 export default function NewCampaignPage() {
     const [parts, setParts] = useState([])
@@ -115,6 +116,23 @@ export default function NewCampaignPage() {
         }
 
         setSending(false)
+    }
+
+    const downloadPDF = () => {
+        if (!promoMessage) { showError('Please add a promotional message first'); return }
+        if (selectedParts.length === 0 && selectedTrucks.length === 0) { showError('Please select at least one part or truck'); return }
+
+        const featuredParts = parts.filter(p => selectedParts.includes(p.id))
+        const featuredTrucks = trucks.filter(t => selectedTrucks.includes(t.id))
+        const html = generateCampaignEmail({ promoMessage, parts: featuredParts, trucks: featuredTrucks })
+
+        const printWindow = window.open('', '_blank')
+        printWindow.document.write(html)
+        printWindow.document.close()
+        printWindow.onload = () => {
+            printWindow.focus()
+            printWindow.print()
+        }
     }
 
     const inputClass = "w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white/50"
@@ -244,6 +262,12 @@ export default function NewCampaignPage() {
                                         className="w-full bg-white/10 text-white py-3 rounded-lg font-bold hover:bg-white/20 disabled:opacity-50 transition-colors"
                                     >
                                         {loading ? 'Saving...' : '💾 Save as Draft'}
+                                    </button>
+                                    <button
+                                        onClick={downloadPDF}
+                                        className="w-full bg-white/10 text-white py-3 rounded-lg font-bold hover:bg-white/20 transition-colors"
+                                    >
+                                        📄 Download as PDF
                                     </button>
                                     <button
                                         onClick={() => router.push('/admin/campaigns')}
