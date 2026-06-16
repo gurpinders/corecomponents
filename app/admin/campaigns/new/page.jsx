@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AdminProtection from '@/components/AdminProtection'
 import { useToast } from '@/lib/ToastContext'
-import { generateCampaignEmail } from '@/lib/emailTemplate'
+import { generateCampaignEmailBody } from '@/lib/emailTemplate'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 export default function NewCampaignPage() {
     const [parts, setParts] = useState([])
@@ -16,7 +18,9 @@ export default function NewCampaignPage() {
     const [promoMessage, setPromoMessage] = useState('')
     const [loading, setLoading] = useState(false)
     const [sending, setSending] = useState(false)
+    const [generatingPDF, setGeneratingPDF] = useState(false)
     const [recipientCount, setRecipientCount] = useState(0)
+    const pdfRef = useRef(null)
     const router = useRouter()
     const { success, error: showError } = useToast()
 
@@ -118,21 +122,55 @@ export default function NewCampaignPage() {
         setSending(false)
     }
 
-    const downloadPDF = () => {
+    const downloadPDF = async () => {
         if (!promoMessage) { showError('Please add a promotional message first'); return }
         if (selectedParts.length === 0 && selectedTrucks.length === 0) { showError('Please select at least one part or truck'); return }
 
+        setGeneratingPDF(true)
+
         const featuredParts = parts.filter(p => selectedParts.includes(p.id))
         const featuredTrucks = trucks.filter(t => selectedTrucks.includes(t.id))
-        const html = generateCampaignEmail({ promoMessage, parts: featuredParts, trucks: featuredTrucks })
+        const bodyHTML = generateCampaignEmailBody({ promoMessage, parts: featuredParts, trucks: featuredTrucks })
 
-        const printWindow = window.open('', '_blank')
-        printWindow.document.write(html)
-        printWindow.document.close()
-        printWindow.onload = () => {
-            printWindow.focus()
-            printWindow.print()
+        pdfRef.current.innerHTML = bodyHTML
+
+        // Wait for every image inside to finish loading before capturing
+        const images = pdfRef.current.querySelectorAll('img')
+        await Promise.all(Array.from(images).map(img => {
+            if (img.complete) return Promise.resolve()
+            return new Promise(resolve => {
+                img.onload = resolve
+                img.onerror = resolve
+            })
+        }))
+
+        // Small delay so layout is fully painted
+        await new Promise(resolve => setTimeout(resolve, 200))
+
+        try {
+            const scale = 2
+            const canvas = await html2canvas(pdfRef.current, {
+                backgroundColor: '#111111',
+                scale,
+                useCORS: true,
+            })
+
+            const pdfWidth = canvas.width / scale
+            const pdfHeight = canvas.height / scale
+
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [pdfWidth, pdfHeight]
+            })
+
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, pdfHeight)
+            pdf.save(`corecomponents-flyer-${Date.now()}.pdf`)
+        } catch (err) {
+            showError('Failed to generate PDF')
         }
+
+        setGeneratingPDF(false)
     }
 
     const inputClass = "w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white/50"
@@ -265,9 +303,10 @@ export default function NewCampaignPage() {
                                     </button>
                                     <button
                                         onClick={downloadPDF}
-                                        className="w-full bg-white/10 text-white py-3 rounded-lg font-bold hover:bg-white/20 transition-colors"
+                                        disabled={generatingPDF}
+                                        className="w-full bg-white/10 text-white py-3 rounded-lg font-bold hover:bg-white/20 disabled:opacity-50 transition-colors"
                                     >
-                                        📄 Download as PDF
+                                        {generatingPDF ? 'Generating PDF...' : '📄 Download as PDF'}
                                     </button>
                                     <button
                                         onClick={() => router.push('/admin/campaigns')}
@@ -293,6 +332,9 @@ export default function NewCampaignPage() {
                     </div>
                 </div>
             </main>
+
+            {/* Hidden container used only to render the flyer for PDF capture */}
+            <div ref={pdfRef} style={{ position: 'fixed', top: 0, left: '-9999px', width: '600px' }}></div>
         </AdminProtection>
     )
 }
