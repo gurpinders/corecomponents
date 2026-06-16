@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import AdminProtection from '@/components/AdminProtection'
 import { useToast } from '@/lib/ToastContext'
-import { generateCampaignEmailBody } from '@/lib/emailTemplate'
+import { generateFlyerPages } from '@/lib/flyerTemplate'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
 export default function NewCampaignPage() {
     const [parts, setParts] = useState([])
     const [trucks, setTrucks] = useState([])
+    const [categories, setCategories] = useState([])
     const [selectedParts, setSelectedParts] = useState([])
     const [selectedTrucks, setSelectedTrucks] = useState([])
     const [subject, setSubject] = useState('')
@@ -27,6 +28,7 @@ export default function NewCampaignPage() {
     useEffect(() => {
         fetchParts()
         fetchTrucks()
+        fetchCategories()
         fetchRecipientCount()
     }, [])
 
@@ -38,6 +40,11 @@ export default function NewCampaignPage() {
     const fetchTrucks = async () => {
         const { data } = await supabase.from('trucks').select('*').order('year')
         if (data) setTrucks(data)
+    }
+
+    const fetchCategories = async () => {
+        const { data } = await supabase.from('categories').select('*')
+        if (data) setCategories(data)
     }
 
     const fetchRecipientCount = async () => {
@@ -82,7 +89,6 @@ export default function NewCampaignPage() {
         if (selectedParts.length === 0 && selectedTrucks.length === 0) { showError('Please select at least one part or truck'); return }
         setSending(true)
 
-        // Save campaign first
         const { data: campaign, error: campaignError } = await supabase
             .from('email_campaigns')
             .insert([{
@@ -97,7 +103,6 @@ export default function NewCampaignPage() {
 
         if (campaignError) { showError('Failed to create campaign'); setSending(false); return }
 
-        // Send
         const response = await fetch('/api/send-campaign', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -124,47 +129,76 @@ export default function NewCampaignPage() {
 
     const downloadPDF = async () => {
         if (!promoMessage) { showError('Please add a promotional message first'); return }
-        if (selectedParts.length === 0 && selectedTrucks.length === 0) { showError('Please select at least one part or truck'); return }
+        if (selectedParts.length === 0) { showError('Please select at least one part'); return }
 
         setGeneratingPDF(true)
 
-        const featuredParts = parts.filter(p => selectedParts.includes(p.id))
-        const featuredTrucks = trucks.filter(t => selectedTrucks.includes(t.id))
-        const bodyHTML = generateCampaignEmailBody({ promoMessage, parts: featuredParts, trucks: featuredTrucks })
-
-        pdfRef.current.innerHTML = bodyHTML
-
-        // Wait for every image inside to finish loading before capturing
-        const images = pdfRef.current.querySelectorAll('img')
-        await Promise.all(Array.from(images).map(img => {
-            if (img.complete) return Promise.resolve()
-            return new Promise(resolve => {
-                img.onload = resolve
-                img.onerror = resolve
-            })
-        }))
-
-        // Small delay so layout is fully painted
-        await new Promise(resolve => setTimeout(resolve, 200))
-
         try {
-            const scale = 2
-            const canvas = await html2canvas(pdfRef.current, {
-                backgroundColor: '#111111',
-                scale,
-                useCORS: true,
+            const featuredParts = parts.filter(p => selectedParts.includes(p.id))
+
+            const categoryMap = {}
+            categories.forEach(cat => { categoryMap[cat.id] = cat.name })
+
+            const groupedByCategory = {}
+            featuredParts.forEach(part => {
+                const catName = categoryMap[part.category_id] || 'Other'
+                if (!groupedByCategory[catName]) groupedByCategory[catName] = []
+                groupedByCategory[catName].push(part)
             })
 
-            const pdfWidth = canvas.width / scale
-            const pdfHeight = canvas.height / scale
+            const categorizedParts = Object.entries(groupedByCategory).map(([categoryName, parts]) => ({
+                categoryName,
+                parts
+            }))
+
+            const pagesHTML = generateFlyerPages({ promoMessage, categorizedParts })
+
+            const scale = 2
+            const canvases = []
+
+            for (const pageHtml of pagesHTML) {
+                pdfRef.current.innerHTML = pageHtml
+
+                const images = pdfRef.current.querySelectorAll('img')
+                await Promise.all(Array.from(images).map(img => {
+                    if (img.complete) return Promise.resolve()
+                    return new Promise(resolve => {
+                        img.onload = resolve
+                        img.onerror = resolve
+                    })
+                }))
+
+                await new Promise(resolve => setTimeout(resolve, 200))
+
+                const canvas = await html2canvas(pdfRef.current, {
+                    backgroundColor: '#0a0a0a',
+                    scale,
+                    useCORS: true,
+                })
+
+                canvases.push(canvas)
+            }
+
+            const firstWidth = canvases[0].width / scale
+            const firstHeight = canvases[0].height / scale
 
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'px',
-                format: [pdfWidth, pdfHeight]
+                format: [firstWidth, firstHeight]
             })
 
-            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, pdfHeight)
+            canvases.forEach((canvas, index) => {
+                const pageWidth = canvas.width / scale
+                const pageHeight = canvas.height / scale
+
+                if (index > 0) {
+                    pdf.addPage([pageWidth, pageHeight], 'portrait')
+                }
+
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, pageHeight)
+            })
+
             pdf.save(`corecomponents-flyer-${Date.now()}.pdf`)
         } catch (err) {
             showError('Failed to generate PDF')
@@ -333,8 +367,8 @@ export default function NewCampaignPage() {
                 </div>
             </main>
 
-            {/* Hidden container used only to render the flyer for PDF capture */}
-            <div ref={pdfRef} style={{ position: 'fixed', top: 0, left: '-9999px', width: '600px' }}></div>
+            {/* Hidden container used only to render flyer pages for PDF capture */}
+            <div ref={pdfRef} style={{ position: 'fixed', top: 0, left: '-9999px', width: '800px' }}></div>
         </AdminProtection>
     )
 }
