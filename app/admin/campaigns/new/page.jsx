@@ -189,7 +189,7 @@ export default function NewCampaignPage() {
                     pdf.addPage()
                 }
 
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, PAGE_WIDTH, PAGE_HEIGHT)
+                pdf.addImage(canvas.toDataURL('image/jpeg', 0.85), 'JPEG', 0, 0, PAGE_WIDTH, PAGE_HEIGHT)
             }
 
             pdf.save(`corecomponents-flyer-${Date.now()}.pdf`)
