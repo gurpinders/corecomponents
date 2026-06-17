@@ -49,6 +49,9 @@ export default function PartsList({ parts }) {
                             {part.sku && (
                                 <p className="text-gray-500 text-xs mt-1 hidden md:block">SKU: {part.sku}</p>
                             )}
+                            {part.mileage_km != null && (
+                                <p className="text-gray-500 text-xs mt-1 hidden md:block">{part.mileage_km.toLocaleString()} km</p>
+                            )}
                         </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
