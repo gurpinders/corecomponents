@@ -9,7 +9,7 @@ import { useToast } from '@/lib/ToastContext'
 
 export default function AddPartPage() {
     const [formData, setFormData] = useState({
-        name: '', description: '', retail_price: '',
+        name: '', description: '', retail_price: '', mileage_km: '',
         category_id: '', stock_status: 'in_stock', featured: false
     })
     const [categories, setCategories] = useState([])
@@ -40,6 +40,7 @@ export default function AddPartPage() {
             name: formData.name, description: formData.description,
             retail_price: parseFloat(formData.retail_price),
             customer_price: (parseFloat(formData.retail_price) * 0.95).toFixed(2),
+            mileage_km: formData.mileage_km ? parseInt(formData.mileage_km) : null,
             category_id: formData.category_id, stock_status: formData.stock_status,
             featured: formData.featured, images: images
         }])
@@ -78,6 +79,11 @@ export default function AddPartPage() {
                         <div>
                             <label className={labelClass}>Retail Price *</label>
                             <input type="number" name="retail_price" value={formData.retail_price} onChange={handleChange} required step="0.01" min="0" placeholder="0.00" className={inputClass} />
+                        </div>
+                        <div>
+                            <label className={labelClass}>Mileage (km)</label>
+                            <input type="number" name="mileage_km" value={formData.mileage_km} onChange={handleChange} step="1" min="0" placeholder="e.g., 450000" className={inputClass} />
+                            <p className="text-xs text-gray-500 mt-1">Leave blank for parts with no applicable mileage (doors, hoods, etc.)</p>
                         </div>
                         <div>
                             <label className={labelClass}>Category *</label>
