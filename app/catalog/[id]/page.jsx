@@ -137,6 +137,9 @@ export default function PartDetailPage({ params }) {
                                 {product.sku && (
                                     <span className="text-gray-500 text-sm">SKU: {product.sku}</span>
                                 )}
+                                {product.mileage_km != null && (
+                                    <span className="text-gray-500 text-sm">{product.mileage_km.toLocaleString()} km</span>
+                                )}
                             </div>
 
                             {/* Description */}
